@@ -9,7 +9,7 @@ import {
 import channel_sh from "../models/channel_sh";
 import updateKothRole from "../services/updateKothRole";
 import findAndUpdateChampion from "../services/findAndUpdateChampion";
-import updateKothLeaderboardChannel from "../services/updateKothLeaderboardChannel";
+import updateKothLeaderboardChannel from "../services/updateLeaderboardChannel";
 
 export = {
   data: new SlashCommandBuilder()
