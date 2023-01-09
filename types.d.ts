@@ -27,6 +27,17 @@ export interface IUserCooldownTimer {
   isBlocked: boolean;
 }
 
+export interface IRankTimeLimit {
+  player1: string;
+  player2: string;
+  createdAt: string;
+}
+
+interface IPlayerData {
+  username: string;
+  id: string;
+}
+
 export interface IKothTimeLimit {
   _id: string;
   username: string;
@@ -35,4 +46,13 @@ export interface IKothTimeLimit {
 interface IGame {
   name: string;
   createdAt: string;
+}
+
+export interface IPlayerScore {
+  _id: string;
+  username: string;
+  win: number;
+  lose: number;
+  score: number;
+  rank?: number;
 }
