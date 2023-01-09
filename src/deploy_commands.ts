@@ -2,7 +2,7 @@ import { readdirSync } from "fs";
 import { join } from "path";
 import { REST } from "@discordjs/rest";
 import { Routes, SlashCommandBuilder } from "discord.js";
-import { TSlashCommandData } from "../../types";
+import { TSlashCommandData } from "../types";
 
 export default (): void => {
   const commandList = slashCommandsList();
@@ -22,7 +22,7 @@ export default (): void => {
 
 const slashCommandsList = (): SlashCommandBuilder[] => {
   const commands: SlashCommandBuilder[] = [];
-  const commandsPath = join(__dirname, "../commands");
+  const commandsPath = join(__dirname, "./commands");
   const commandFiles = readdirSync(commandsPath).filter((file) =>
     file.endsWith(".js")
   );

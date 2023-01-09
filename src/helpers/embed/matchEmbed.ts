@@ -1,4 +1,4 @@
-import { AttachmentBuilder, User } from "discord.js";
+import { User } from "discord.js";
 
 import { EmbedBuilder } from "discord.js";
 
@@ -7,14 +7,22 @@ export default (
   challenger: User,
   rounds: number,
   game: string,
-  imgPathString: string | null
+  imgPathString: string | null,
+  isRanked: boolean
 ): EmbedBuilder => {
-  const championInfo = `**__Champion__ (0) \n \`1\` ${champion}**`;
-  const challengerInfo = `**__Challenger__ (0) \n \`2\` ${challenger}**`;
+  const championInfo = isRanked
+    ? `**__Player1__ (0) \n \`1\` ${champion}**`
+    : `**__Champion__ (0) \n \`1\` ${champion}**`;
+  const challengerInfo = isRanked
+    ? `**__Player2__ (0) \n \`2\` ${challenger}**`
+    : `**__Challenger__ (0) \n \`2\` ${challenger}**`;
+  const titleInfo = isRanked
+    ? `\`\`\`Rank Match - first to ${rounds}\`\`\``
+    : `\`\`\`Match - first to ${rounds}\`\`\``;
 
   return new EmbedBuilder()
     .setColor("#5865F2")
-    .setTitle(`\`\`\`Match - first to  ${rounds}\`\`\``)
+    .setTitle(titleInfo)
     .setAuthor({ name: game })
     .addFields([
       {
