@@ -20,7 +20,7 @@ import getGameImg from "../helpers/getGameImg";
 import kothMatchEmbed from "../helpers/embed/matchEmbed";
 import updateKothWinStreak from "../services/updateKothWinStreak";
 import channel_sh from "../models/channel_sh";
-import updateKothLeaderboardChannel from "../services/updateKothLeaderboardChannel";
+import updateKothLeaderboardChannel from "../services/updateLeaderboardChannel";
 import findAndUpdateChampion from "../services/findAndUpdateChampion";
 import updateKothRole from "../services/updateKothRole";
 
