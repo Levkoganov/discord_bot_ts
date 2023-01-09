@@ -1,12 +1,12 @@
 import { Schema, model } from "mongoose";
-import { ITimeLimit } from "../../types";
+import { IKothTimeLimit } from "../../types";
 
 const reqString = {
   type: String,
   require: true,
 };
 
-const setTimeLimit = new Schema<ITimeLimit>({
+const setKothTimeLimit = new Schema<IKothTimeLimit>({
   _id: reqString,
   username: reqString,
   games: [
@@ -17,4 +17,4 @@ const setTimeLimit = new Schema<ITimeLimit>({
   ],
 });
 
-export default model("TimeLimit", setTimeLimit);
+export default model("kothTimeLimit", setKothTimeLimit);

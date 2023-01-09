@@ -15,7 +15,7 @@ import { ISetChampion } from "../../types";
 import {
   checkChallengerCooldown,
   updateLoserCooldown,
-} from "../services/challengerTimeLimit";
+} from "../services/kothTimeLimit";
 import getGameImg from "../helpers/getGameImg";
 import kothMatchEmbed from "../helpers/embed/matchEmbed";
 import updateKothWinStreak from "../services/updateKothWinStreak";

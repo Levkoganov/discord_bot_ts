@@ -27,7 +27,7 @@ export interface IUserCooldownTimer {
   isBlocked: boolean;
 }
 
-export interface ITimeLimit {
+export interface IKothTimeLimit {
   _id: string;
   username: string;
   games: IGame[];

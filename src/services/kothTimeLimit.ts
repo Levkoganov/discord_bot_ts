@@ -1,7 +1,7 @@
 import { User } from "discord.js";
-import timeLimit_sh from "../models/timeLimit_sh";
+import kothTimeLimit_sh from "../models/kothTimeLimit_sh";
 import moment from "moment";
-import { ITimeLimit, IUserCooldownTimer } from "../../types";
+import { IUserCooldownTimer } from "../../types";
 
 export const checkChallengerCooldown = async (
   user: User,
@@ -13,7 +13,7 @@ export const checkChallengerCooldown = async (
   };
   const { id } = user;
 
-  const userTimeLimit = await timeLimit_sh.findById(id);
+  const userTimeLimit = await kothTimeLimit_sh.findById(id);
   if (userTimeLimit === null) return userCooldownTimer;
 
   const gameTimeLimit = userTimeLimit.games.find(({ name }) => name === game);
@@ -37,7 +37,7 @@ export const updateLoserCooldown = async (user: User, game: string) => {
   const { id, username } = user;
   const currentLocalTime = moment().format();
 
-  const loserPrevCooldown = await timeLimit_sh.findById(id);
+  const loserPrevCooldown = await kothTimeLimit_sh.findById(id);
   if (!loserPrevCooldown) {
     const setLoserTimeLimit = {
       _id: id,
@@ -50,12 +50,12 @@ export const updateLoserCooldown = async (user: User, game: string) => {
         },
       ],
     };
-    await new timeLimit_sh(setLoserTimeLimit).save();
+    await new kothTimeLimit_sh(setLoserTimeLimit).save();
   } else {
     const filter = { "games.name": game, _id: id };
     const update = { "games.$.createdAt": currentLocalTime };
     const options = { new: true };
-    const gameCooldown = await timeLimit_sh.findOneAndUpdate(
+    const gameCooldown = await kothTimeLimit_sh.findOneAndUpdate(
       filter,
       { $set: update },
       options
