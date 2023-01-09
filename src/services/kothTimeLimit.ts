@@ -2,6 +2,7 @@ import { User } from "discord.js";
 import kothTimeLimit_sh from "../models/kothTimeLimit_sh";
 import moment from "moment";
 import { IUserCooldownTimer } from "../../types";
+import { cooldownTimer } from "../helpers/timeLimitCalculate";
 
 export const checkChallengerCooldown = async (
   user: User,
@@ -12,7 +13,6 @@ export const checkChallengerCooldown = async (
     cooldown: "",
   };
   const { id } = user;
-
   const userTimeLimit = await kothTimeLimit_sh.findById(id);
   if (userTimeLimit === null) return userCooldownTimer;
 
@@ -21,16 +21,7 @@ export const checkChallengerCooldown = async (
 
   const currentLocalTime = moment().format();
   const { createdAt } = gameTimeLimit;
-
-  const hours = timePassedInHours(currentLocalTime, createdAt);
-
-  if (hours >= 12) {
-    return userCooldownTimer;
-  } else {
-    userCooldownTimer["cooldown"] = timeLeft(currentLocalTime, createdAt);
-    userCooldownTimer["isBlocked"] = true;
-    return userCooldownTimer;
-  }
+  return cooldownTimer(createdAt, userCooldownTimer, currentLocalTime, 12);
 };
 
 export const updateLoserCooldown = async (user: User, game: string) => {
@@ -69,19 +60,4 @@ export const updateLoserCooldown = async (user: User, game: string) => {
       loserPrevCooldown.save();
     }
   }
-};
-
-function timePassedInHours(currentTime: string, createdAt: string): number {
-  const currTime = moment(currentTime);
-  const created = moment(createdAt);
-  return currTime.diff(created, "hours");
-}
-
-const timeLeft = (currentTime: string, createdAt: string): string => {
-  const currTime = moment(currentTime);
-  const created = moment(createdAt);
-
-  return moment
-    .utc(moment(currTime, "HH:mm:ss").diff(moment(created, "HH:mm:ss")))
-    .format("HH:mm:ss");
 };
