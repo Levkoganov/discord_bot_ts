@@ -17,7 +17,7 @@ import {
   updateLoserCooldown,
 } from "../services/challengerTimeLimit";
 import getGameImg from "../helpers/getGameImg";
-import kothMatch_embed from "../helpers/embed/kothMatch_embed";
+import kothMatchEmbed from "../helpers/embed/matchEmbed";
 import updateKothWinStreak from "../services/updateKothWinStreak";
 import kothChannel_sh from "../models/kothChannel_sh";
 import updateKothLeaderboardChannel from "../services/updateKothLeaderboardChannel";
@@ -26,7 +26,7 @@ import updateKothRole from "../services/updateKothRole";
 
 export = {
   data: new SlashCommandBuilder()
-    .setName("koth-challenger")
+    .setName("challenger")
     .setDescription("Choose the challenger")
 
     .addStringOption((option) =>
@@ -160,12 +160,13 @@ export = {
     const gameImg = new AttachmentBuilder(`./public/img/${imgPathString}`);
     const Winneremoji = "<:trophy:988122907815325758>";
 
-    const matchEmbed = kothMatch_embed(
+    const matchEmbed = kothMatchEmbed(
       champion,
       challenger,
       rounds,
       game,
-      imgPathString
+      imgPathString,
+      false
     );
 
     const row = new ActionRowBuilder<ButtonBuilder>()
@@ -226,8 +227,6 @@ export = {
 
     let championScore = 0;
     let challengerScore = 0;
-    let championEmbedFieldUpdate = "";
-    let challengerEmbedFieldUpdate = "";
     const channel = interaction.guild.channels.cache.get(
       kothLeaderboardChannel.channelId
     ) as TextChannel;
@@ -238,8 +237,7 @@ export = {
       // Champion(btn)
       if (i.customId === champion.username) {
         championScore++;
-        championEmbedFieldUpdate = `**__Champion__ (${championScore})\n  \`1\` ${champion}**`;
-        matchEmbed.data.fields[0].value = championEmbedFieldUpdate;
+        matchEmbed.data.fields[0].value = `**__Champion__ (${championScore})\n  \`1\` ${champion}**`;
 
         if (championScore === rounds) {
           matchEmbed.data.fields[2].value = `*~~__Challenger__ (${challengerScore})\n \`2\` ${challenger}~~*`;
@@ -270,8 +268,7 @@ export = {
       // Challenger(btn)
       if (i.customId === challenger.username) {
         challengerScore++;
-        challengerEmbedFieldUpdate = `**__Challenger__ (${challengerScore})\n \`2\` ${challenger}**`;
-        matchEmbed.data.fields[2].value = challengerEmbedFieldUpdate;
+        matchEmbed.data.fields[2].value = `**__Challenger__ (${challengerScore})\n \`2\` ${challenger}**`;
 
         if (challengerScore === rounds) {
           matchEmbed.data.fields[0].value = `*~~__Champion__ (${championScore})\n  \`1\`  ${champion}~~*`;
