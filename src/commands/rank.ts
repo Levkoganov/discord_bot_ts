@@ -69,7 +69,7 @@ export = {
 
     if (rankLeaderboardChannel === null) {
       await interaction.reply({
-        content: `Please use \`/set-koth-channel\` before using this command`,
+        content: `Please use \`/set-channel\` before using this command`,
         ephemeral: true,
       });
       return;
