@@ -15,9 +15,10 @@ export interface ISetChampion {
   winstreak: number;
 }
 
-export interface IKothChannel {
-  _id: string;
+export interface IChannel {
+  guildId: string;
   channelId: string;
+  type: string;
   channelName: string;
 }
 

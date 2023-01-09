@@ -19,7 +19,7 @@ import {
 import getGameImg from "../helpers/getGameImg";
 import kothMatchEmbed from "../helpers/embed/matchEmbed";
 import updateKothWinStreak from "../services/updateKothWinStreak";
-import kothChannel_sh from "../models/kothChannel_sh";
+import channel_sh from "../models/channel_sh";
 import updateKothLeaderboardChannel from "../services/updateKothLeaderboardChannel";
 import findAndUpdateChampion from "../services/findAndUpdateChampion";
 import updateKothRole from "../services/updateKothRole";
@@ -105,7 +105,10 @@ export = {
     const champion = interaction.user;
     const champions = await champion_sh.find({ userId: champion.id });
     const { id } = interaction.guild;
-    const kothLeaderboardChannel = await kothChannel_sh.findById(id);
+    const kothLeaderboardChannel = await channel_sh.findOne({
+      guildId: id,
+      type: "KOTH",
+    });
     const isCurrentGameChampion = validateCurrentGameChampion(champions, game);
     const role = interaction.guild.roles.cache.find(
       (role) => role.name === kothRoleName
@@ -137,7 +140,7 @@ export = {
 
     if (kothLeaderboardChannel === null) {
       await interaction.reply({
-        content: `Please use \`/set-koth-channel\` before using this command`,
+        content: `Please use \`/set-channel\` before using this command`,
         ephemeral: true,
       });
       return;

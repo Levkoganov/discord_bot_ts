@@ -6,7 +6,7 @@ import {
   TextChannel,
 } from "discord.js";
 
-import kothChannel_sh from "../models/kothChannel_sh";
+import channel_sh from "../models/channel_sh";
 import updateKothRole from "../services/updateKothRole";
 import findAndUpdateChampion from "../services/findAndUpdateChampion";
 import updateKothLeaderboardChannel from "../services/updateKothLeaderboardChannel";
@@ -88,11 +88,14 @@ export = {
     );
 
     if (isAdmin || isMod) {
-      const kothLeaderboardChannel = await kothChannel_sh.findById(id);
+      const kothLeaderboardChannel = await channel_sh.findOne({
+        guildId: id,
+        type: "KOTH",
+      });
 
       if (kothLeaderboardChannel === null) {
         await interaction.reply({
-          content: `Please use \`/set-koth-channel\` before using this command`,
+          content: `Please use \`/set-channel\` before using this command`,
           ephemeral: true,
         });
         return;
