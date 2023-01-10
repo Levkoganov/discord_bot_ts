@@ -9,7 +9,7 @@ export default (players: IPlayerScore[]) => {
   const embed = new EmbedBuilder()
     .setColor("#C27C0E")
     .setTitle("\u200B")
-    .setAuthor({ name: "Rank leaderboard" })
+    .setAuthor({ name: "DBFZ Rank leaderboard" })
     .setImage(`attachment://FGC.png`)
     .setFooter({
       text: "leaderboards last update",
