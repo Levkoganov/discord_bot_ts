@@ -12,18 +12,21 @@ export function cooldownTimer(
   if (timePassed >= hours) {
     return userCooldownTimer;
   } else {
-    userCooldownTimer["cooldown"] = timeLeft(currentLocalTime, createdAt);
+    userCooldownTimer["cooldown"] = showTimer(currentLocalTime, createdAt);
     userCooldownTimer["isBlocked"] = true;
     return userCooldownTimer;
   }
 }
-function timePassedInHours(currentTime: string, createdAt: string): number {
+export function timePassedInHours(
+  currentTime: string,
+  createdAt: string
+): number {
   const currTime = moment(currentTime);
   const created = moment(createdAt);
   return currTime.diff(created, "hours");
 }
 
-function timeLeft(currentTime: string, createdAt: string): string {
+export function showTimer(currentTime: string, createdAt: string): string {
   const currTime = moment(currentTime);
   const created = moment(createdAt);
 
