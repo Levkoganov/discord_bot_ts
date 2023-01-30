@@ -237,6 +237,7 @@ export = {
             });
 
             const loser = interaction.guild.members.cache.get(opponent.id);
+            await loser?.voice.disconnect();
             await updateShadowGameTimeLimit(user, opponent, opponent.id);
             await updateShadowGameRole(loser, role);
 
@@ -265,6 +266,7 @@ export = {
               components: [],
             });
             const loser = interaction.guild.members.cache.get(user.id);
+            await loser?.voice.disconnect();
             await updateShadowGameTimeLimit(user, opponent, user.id);
             await updateShadowGameRole(loser, role);
 
