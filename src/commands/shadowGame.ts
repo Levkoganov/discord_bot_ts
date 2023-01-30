@@ -51,7 +51,7 @@ export = {
     const opponent = interaction.options.getUser("opponent", true);
     const rounds = interaction.options.getNumber("rounds", true);
     const user = interaction.user;
-    const roleName = "test";
+    const roleName = "Niftar";
     const role = interaction.guild.roles.cache.find(
       (role) => role.name === roleName
     );

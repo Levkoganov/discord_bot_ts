@@ -21,7 +21,7 @@ export = {
     if (!interaction.isChatInputCommand()) return;
 
     const user = interaction.user;
-    const roleName = "test";
+    const roleName = "Niftar";
     const role = interaction.member.roles.cache.find(
       (role) => role.name === roleName
     );
