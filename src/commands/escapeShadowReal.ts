@@ -33,6 +33,18 @@ export = {
         .find({ loserId: user.id })
         .sort({ createdAt: -1 });
 
+      if (lastLost.length === 0) {
+        await interaction.reply({
+          content: `\`you escaped the shadow realm!\nuntill next time...\``,
+          ephemeral: true,
+        });
+        const userMember = interaction.guild.members.cache.get(user.id);
+        await wait(2000);
+        await userMember?.roles.remove(role);
+
+        return;
+      }
+
       const timePassInHours = timePassedInHours(
         currentLocalTime,
         lastLost[0].createdAt
