@@ -6,24 +6,24 @@ export default (
   champion: User,
   challenger: User,
   rounds: number,
-  game: string,
-  imgPathString: string | null,
-  isRanked: boolean
+  isShadowGame: boolean,
+  game?: string | undefined,
+  imgPathString?: string | null | undefined
 ): EmbedBuilder => {
-  const championInfo = isRanked
+  const championInfo = isShadowGame
     ? `**__Player1__ (0) \n \`1\` ${champion}**`
     : `**__Champion__ (0) \n \`1\` ${champion}**`;
-  const challengerInfo = isRanked
+  const challengerInfo = isShadowGame
     ? `**__Player2__ (0) \n \`2\` ${challenger}**`
     : `**__Challenger__ (0) \n \`2\` ${challenger}**`;
-  const titleInfo = isRanked
-    ? `\`\`\`Rank Match - first to ${rounds}\`\`\``
+  const titleInfo = isShadowGame
+    ? `\`\`\`first to ${rounds}\`\`\``
     : `\`\`\`Match - first to ${rounds}\`\`\``;
 
   return new EmbedBuilder()
     .setColor("#5865F2")
     .setTitle(titleInfo)
-    .setAuthor({ name: game })
+    .setAuthor({ name: game ? game : "Shadow game" })
     .addFields([
       {
         name: "\u200B",
@@ -43,6 +43,6 @@ export default (
         inline: true,
       },
     ])
-    .setImage(`attachment://${imgPathString}`)
+    .setImage(imgPathString ? `attachment://${imgPathString}` : null)
     .setTimestamp();
 };

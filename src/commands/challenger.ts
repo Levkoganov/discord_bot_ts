@@ -105,10 +105,7 @@ export = {
     const champion = interaction.user;
     const champions = await champion_sh.find({ userId: champion.id });
     const { id } = interaction.guild;
-    const kothLeaderboardChannel = await channel_sh.findOne({
-      guildId: id,
-      type: "KOTH",
-    });
+    const kothLeaderboardChannel = await channel_sh.findOne({ guildId: id });
     const isCurrentGameChampion = validateCurrentGameChampion(champions, game);
     const role = interaction.guild.roles.cache.find(
       (role) => role.name === kothRoleName
@@ -132,7 +129,7 @@ export = {
 
     if (role === undefined) {
       await interaction.reply({
-        content: `\`"KOTH - Champion"\` **__role__** doesn't exist.\nplease creat this role before using this command`,
+        content: `\`"KOTH - Champion"\` **__role__** doesn't exist.\nplease create this role before using this command`,
         ephemeral: true,
       });
       return;
@@ -167,9 +164,9 @@ export = {
       champion,
       challenger,
       rounds,
+      false,
       game,
-      imgPathString,
-      false
+      imgPathString
     );
 
     const row = new ActionRowBuilder<ButtonBuilder>()

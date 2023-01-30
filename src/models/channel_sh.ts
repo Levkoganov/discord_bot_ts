@@ -9,7 +9,6 @@ const reqString = {
 const setChannel = new Schema<IChannel>({
   guildId: reqString,
   channelId: reqString,
-  type: reqString,
   channelName: reqString,
 });
 

@@ -88,10 +88,7 @@ export = {
     );
 
     if (isAdmin || isMod) {
-      const kothLeaderboardChannel = await channel_sh.findOne({
-        guildId: id,
-        type: "KOTH",
-      });
+      const kothLeaderboardChannel = await channel_sh.findOne({ guildId: id });
 
       if (kothLeaderboardChannel === null) {
         await interaction.reply({
