@@ -27,9 +27,10 @@ export interface IUserCooldownTimer {
   isBlocked: boolean;
 }
 
-export interface IRankTimeLimit {
+export interface IShadowGameTimeLimit {
   player1: string;
   player2: string;
+  loserId: string;
   createdAt: string;
 }
 
