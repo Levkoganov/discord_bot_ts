@@ -273,7 +273,7 @@ export = {
         if (challengerScore === rounds) {
           matchEmbed.data.fields[0].value = `*~~__Champion__ (${championScore})\n  \`1\`  ${champion}~~*`;
           matchEmbed.setTitle(
-            `${Winneremoji}\`\`\`${champion.username} (${championScore} - ${challengerScore})\`\`\``
+            `${Winneremoji}\`\`\`${challenger.username} (${championScore} - ${challengerScore})\`\`\``
           );
 
           await i.update({
