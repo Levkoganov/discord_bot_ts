@@ -70,6 +70,10 @@ export = {
           name: "Street Fighter V",
           value: "Street_Fighter_V",
         })
+        .addChoices({
+          name: "Street Fighter VI",
+          value: "Street_Fighter_VI",
+        })
     )
 
     .addNumberOption((option) =>
