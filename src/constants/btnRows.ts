@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, User } from "discord.js";
 
-export const ACCEPTROW = new ActionRowBuilder<ButtonBuilder>()
+export const ACCEPTBTNROW = new ActionRowBuilder<ButtonBuilder>()
   // Btn(1)
   .addComponents(
     new ButtonBuilder()

@@ -17,7 +17,7 @@ import updateKothLeaderboardChannel from "../services/updateLeaderboardChannel";
 import findAndUpdateChampion from "../services/findAndUpdateChampion";
 import updateKothRole from "../services/updateKothRole";
 import { gamesOption } from "../constants/gameOptionsFunc";
-import { ACCEPTROW, matchClickableBtnsRow } from "../constants/btnRows";
+import { ACCEPTBTNROW, matchClickableBtnsRow } from "../constants/btnRows";
 import { filterInteraction } from "../services/filterUserInteractions";
 import acceptionEmbed from "../helpers/embed/acceptionEmbed";
 import {
@@ -93,7 +93,7 @@ export = {
     const imgPathString = getGameImg(game);
     const gameImg = new AttachmentBuilder(`./public/img/${imgPathString}`);
 
-    const acceptrRow = ACCEPTROW;
+    const acceptBtnRow = ACCEPTBTNROW;
     const acceptEmbed = acceptionEmbed(challenger, true, game, imgPathString);
 
     const matchRow = matchClickableBtnsRow(champion, challenger);
@@ -117,7 +117,7 @@ export = {
 
     const rep = await interaction.reply({
       embeds: [acceptEmbed],
-      components: [acceptrRow],
+      components: [acceptBtnRow],
       files: [gameImg],
       fetchReply: true,
     });
