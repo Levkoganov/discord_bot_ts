@@ -16,7 +16,10 @@ import channel_sh from "../models/channel_sh";
 import updateKothLeaderboardChannel from "../services/updateLeaderboardChannel";
 import findAndUpdateChampion from "../services/findAndUpdateChampion";
 import updateKothRole from "../services/updateKothRole";
-import { gamesOption } from "../constants/gameOptionsFunc";
+import {
+  gamesOption,
+  numberOfRoundsOption,
+} from "../constants/gameOptionsFunc";
 import { ACCEPTBTNROW, matchClickableBtnsRow } from "../constants/btnRows";
 import { filterInteraction } from "../services/filterUserInteractions";
 import acceptionEmbed from "../helpers/embed/acceptionEmbed";
@@ -29,24 +32,8 @@ export = {
   data: new SlashCommandBuilder()
     .setName("challenger")
     .setDescription("Choose the challenger")
-
     .addStringOption((option) => gamesOption(option))
-
-    .addNumberOption((option) =>
-      option
-        .setName("rounds")
-        .setDescription("select number of rounds")
-        .setRequired(true)
-        .addChoices({
-          name: "First to 3",
-          value: 3,
-        })
-        .addChoices({
-          name: "First to 5",
-          value: 5,
-        })
-    )
-
+    .addNumberOption((option) => numberOfRoundsOption(option))
     .addUserOption((option) =>
       option
         .setName("challenger")
@@ -96,7 +83,7 @@ export = {
     const acceptBtnRow = ACCEPTBTNROW;
     const acceptEmbed = acceptionEmbed(challenger, true, game, imgPathString);
 
-    const matchRow = matchClickableBtnsRow(champion, challenger);
+    const matchBtnRow = matchClickableBtnsRow(champion, challenger);
     const matchEmbed = kothMatchEmbed(
       champion,
       challenger,
@@ -142,7 +129,7 @@ export = {
         await i.update({
           content: "",
           embeds: [matchEmbed],
-          components: [matchRow],
+          components: [matchBtnRow],
           files: [gameImg],
         });
         acceptCollector.stop();

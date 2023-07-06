@@ -1,4 +1,4 @@
-import { SlashCommandStringOption } from "discord.js";
+import { SlashCommandNumberOption, SlashCommandStringOption } from "discord.js";
 
 export const gamesOption = (option: SlashCommandStringOption) =>
   option
@@ -32,4 +32,18 @@ export const gamesOption = (option: SlashCommandStringOption) =>
     .addChoices({
       name: "Street Fighter VI",
       value: "Street_Fighter_VI",
+    });
+
+export const numberOfRoundsOption = (option: SlashCommandNumberOption) =>
+  option
+    .setName("rounds")
+    .setDescription("select number of rounds")
+    .setRequired(true)
+    .addChoices({
+      name: "First to 3",
+      value: 3,
+    })
+    .addChoices({
+      name: "First to 5",
+      value: 5,
     });
