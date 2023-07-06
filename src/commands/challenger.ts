@@ -1,21 +1,14 @@
 import {
-  ActionRowBuilder,
   AttachmentBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   CommandInteraction,
   GuildMemberRoleManager,
-  MessageComponentInteraction,
   SlashCommandBuilder,
   TextChannel,
 } from "discord.js";
 
+import { setTimeout as wait } from "node:timers/promises";
 import champion_sh from "../models/champion_sh";
-import { ISetChampion } from "../../types";
-import {
-  checkChallengerCooldown,
-  updateLoserCooldown,
-} from "../services/kothTimeLimit";
+import { updateLoserCooldown } from "../services/kothTimeLimit";
 import getGameImg from "../helpers/getGameImg";
 import kothMatchEmbed from "../helpers/embed/matchEmbed";
 import updateKothWinStreak from "../services/updateKothWinStreak";
@@ -24,6 +17,13 @@ import updateKothLeaderboardChannel from "../services/updateLeaderboardChannel";
 import findAndUpdateChampion from "../services/findAndUpdateChampion";
 import updateKothRole from "../services/updateKothRole";
 import { gamesOption } from "../constants/gameOptionsFunc";
+import { ACCEPTROW, matchClickableBtnsRow } from "../constants/btnRows";
+import { filterInteraction } from "../services/filterUserInteractions";
+import acceptionEmbed from "../helpers/embed/acceptionEmbed";
+import {
+  authorizeCurrentGameChampion,
+  authorizeUserCommand,
+} from "../services/authorizeUserCommand";
 
 export = {
   data: new SlashCommandBuilder()
@@ -59,67 +59,44 @@ export = {
   ): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
+    // Base Variables
+    const kothRoleName = "KOTH - Champion";
+    const { id } = interaction.guild;
+    const champion = interaction.user;
     const game = interaction.options.getString("game", true);
     const challenger = interaction.options.getUser("challenger", true);
-    const kothRoleName = "KOTH - Champion";
-    const champion = interaction.user;
-    const champions = await champion_sh.find({ userId: champion.id });
-    const { id } = interaction.guild;
+    const rounds = interaction.options.getNumber("rounds", true);
+
+    // Func Variables
+    const userCurrentTitles = await champion_sh.find({ userId: champion.id });
     const kothLeaderboardChannel = await channel_sh.findOne({ guildId: id });
-    const isCurrentGameChampion = validateCurrentGameChampion(champions, game);
+    const isUserCurrentGameChampion = authorizeCurrentGameChampion(
+      userCurrentTitles,
+      game
+    );
     const role = interaction.guild.roles.cache.find(
       (role) => role.name === kothRoleName
     );
 
-    if (!isCurrentGameChampion) {
-      await interaction.reply({
-        content: `Only the \`${game}\` champion can use this command`,
-        ephemeral: true,
-      });
-      return;
-    }
-
-    if (champion.id === challenger.id) {
-      await interaction.reply({
-        content: "You cannot select yourself as a challenger...",
-        ephemeral: true,
-      });
-      return;
-    }
-
-    if (role === undefined) {
-      await interaction.reply({
-        content: `\`"KOTH - Champion"\` **__role__** doesn't exist.\nplease create this role before using this command`,
-        ephemeral: true,
-      });
-      return;
-    }
-
-    if (kothLeaderboardChannel === null) {
-      await interaction.reply({
-        content: `Please use \`/set-channel\` before using this command`,
-        ephemeral: true,
-      });
-      return;
-    }
-
-    const { cooldown, isBlocked } = await checkChallengerCooldown(
+    const isUserAuthorize = await authorizeUserCommand(
+      interaction,
+      champion,
       challenger,
-      game
+      role,
+      game,
+      isUserCurrentGameChampion,
+      kothLeaderboardChannel
     );
-    if (isBlocked) {
-      await interaction.reply({
-        content: `**The \`Opponent\` can challenge the \`Champion\` once every \`12 hours\`**.\n\n\`CHALLENGER: (${challenger.username})\`\n\`GAME: (${game})\` \`\`\`time passed: ${cooldown} (HH:mm:ss)\`\`\``,
-        ephemeral: true,
-      });
-      return;
-    }
 
-    const rounds = interaction.options.getNumber("rounds", true);
+    if (!isUserAuthorize) return;
+
     const imgPathString = getGameImg(game);
     const gameImg = new AttachmentBuilder(`./public/img/${imgPathString}`);
-    const Winneremoji = "<:trophy:988122907815325758>";
 
+    const acceptrRow = ACCEPTROW;
+    const acceptEmbed = acceptionEmbed(challenger, true, game, imgPathString);
+
+    const matchRow = matchClickableBtnsRow(champion, challenger);
     const matchEmbed = kothMatchEmbed(
       champion,
       challenger,
@@ -129,163 +106,166 @@ export = {
       imgPathString
     );
 
-    const row = new ActionRowBuilder<ButtonBuilder>()
-      // Btn(1)
-      .addComponents(
-        new ButtonBuilder()
-          .setCustomId(champion.username)
-          .setLabel(champion.username)
-          .setStyle(ButtonStyle.Primary)
-      )
+    let championScore = 0;
+    let challengerScore = 0;
+    const Winneremoji = "<:trophy:988122907815325758>";
 
-      // Btn(2)
-      .addComponents(
-        new ButtonBuilder()
-          .setCustomId(challenger.username)
-          .setLabel(challenger.username)
-          .setStyle(ButtonStyle.Success)
-      )
-
-      // Btn(3)
-      .addComponents(
-        new ButtonBuilder()
-          .setCustomId("Reset")
-          .setLabel("RESET 🔄")
-          .setStyle(ButtonStyle.Secondary)
-      )
-
-      // Btn(4)
-      .addComponents(
-        new ButtonBuilder()
-          .setCustomId("Delete")
-          .setLabel("DELETE ❌")
-          .setStyle(ButtonStyle.Secondary)
-      );
+    // Koth Channel
+    const channel = interaction.guild.channels.cache.get(
+      kothLeaderboardChannel!.channelId
+    ) as TextChannel;
 
     const rep = await interaction.reply({
-      embeds: [matchEmbed],
-      components: [row],
+      embeds: [acceptEmbed],
+      components: [acceptrRow],
       files: [gameImg],
       fetchReply: true,
     });
 
-    const filter = async (i: MessageComponentInteraction) => {
-      if (i.user.id === champion.id) return true;
-      else {
-        await i.reply({
-          content: `These buttons aren't for you...`,
-          ephemeral: true,
+    const acceptCollector = rep.createMessageComponentCollector({
+      time: 1000 * 60 * 2, // 2min
+    });
+
+    acceptCollector.on("collect", async (i) => {
+      const isBtnClickedByChallenger = await filterInteraction(i, challenger);
+      if (!isBtnClickedByChallenger) return;
+
+      // Accept(btn)
+      if (i.customId === "Accept") {
+        await rep.edit({
+          components: [],
+          embeds: [],
+          files: [],
+          content: "`loading...`",
         });
-        return false;
-      }
-    };
 
-    const collector = rep.createMessageComponentCollector({
-      filter,
-      time: 1000 * 60 * 90, // 90min
-    });
-
-    let championScore = 0;
-    let challengerScore = 0;
-    const channel = interaction.guild.channels.cache.get(
-      kothLeaderboardChannel.channelId
-    ) as TextChannel;
-
-    collector.on("collect", async (i) => {
-      if (matchEmbed.data.fields === undefined) return;
-
-      // Champion(btn)
-      if (i.customId === champion.username) {
-        championScore++;
-        matchEmbed.data.fields[0].value = `**__Champion__ (${championScore})\n  \`1\` ${champion}**`;
-
-        if (championScore === rounds) {
-          matchEmbed.data.fields[2].value = `*~~__Challenger__ (${challengerScore})\n \`2\` ${challenger}~~*`;
-          matchEmbed.setTitle(
-            `${Winneremoji}\`\`\`${champion.username} (${championScore} - ${challengerScore})\`\`\``
-          );
-          await i.update({
-            embeds: [matchEmbed],
-            files: [gameImg],
-            components: [],
-          });
-
-          const winner = await champion_sh.findOne({
-            userId: champion.id,
-            game: game,
-          });
-
-          await updateKothWinStreak(winner);
-          await updateLoserCooldown(challenger, game);
-          await updateKothLeaderboardChannel(channel);
-
-          collector.stop();
-        } else {
-          await i.update({ embeds: [matchEmbed] });
-        }
+        await i.update({
+          content: "",
+          embeds: [matchEmbed],
+          components: [matchRow],
+          files: [gameImg],
+        });
+        acceptCollector.stop();
+        return;
       }
 
-      // Challenger(btn)
-      if (i.customId === challenger.username) {
-        challengerScore++;
-        matchEmbed.data.fields[2].value = `**__Challenger__ (${challengerScore})\n \`2\` ${challenger}**`;
-
-        if (challengerScore === rounds) {
-          matchEmbed.data.fields[0].value = `*~~__Champion__ (${championScore})\n  \`1\`  ${champion}~~*`;
-          matchEmbed.setTitle(
-            `${Winneremoji}\`\`\`${challenger.username} (${championScore} - ${challengerScore})\`\`\``
-          );
-
-          await i.update({
-            embeds: [matchEmbed],
-            files: [gameImg],
-            components: [],
-          });
-
-          const challengerMember = interaction.options.getMember("challenger");
-          const prevChampion = await findAndUpdateChampion(game, challenger);
-
-          await updateKothRole(
-            interaction,
-            prevChampion?.userId,
-            role,
-            challengerMember
-          );
-          await updateLoserCooldown(champion, game);
-          await updateKothLeaderboardChannel(channel);
-        } else {
-          await i.update({ embeds: [matchEmbed] });
-        }
-      }
-
-      // Reset(btn)
-      if (i.customId === "Reset") {
-        championScore = 0;
-        challengerScore = 0;
-        matchEmbed.data.fields[0].value = `**__Champion__ (${championScore})\n  \`1\` ${champion}**`;
-        matchEmbed.data.fields[2].value = `**__Challenger__ (${challengerScore})\n \`2\` ${challenger}**`;
-        await i.update({ embeds: [matchEmbed] });
-      }
-
-      // Delete(btn)
-      if (i.customId === "Delete") {
+      // Decline(btn)
+      if (i.customId === "Decline") {
+        await rep.edit({
+          components: [],
+          embeds: [],
+          files: [],
+          content: `\`\`\`${challenger.username} declined the match...\`\`\``,
+        });
+        await wait(3000);
         await rep.delete();
+        acceptCollector.stop();
+        return;
       }
     });
 
-    collector.on("end", (collected) =>
-      console.log(`Collected ${collected.size} items`)
-    );
+    acceptCollector.on("end", async (_, reason) => {
+      if (reason === "time") {
+        await rep.edit({
+          content: `\`\`\`${challenger.username} didn't accept the match in time...\`\`\``,
+          components: [],
+          embeds: [],
+        });
+
+        await wait(3000);
+        await rep.delete();
+        acceptCollector.stop();
+        return;
+      }
+
+      const matchCollector = rep.createMessageComponentCollector({
+        time: 1000 * 60 * 90, // 90min
+      });
+
+      matchCollector.on("collect", async (i) => {
+        const isBtnClickedByChampion = await filterInteraction(i, champion);
+        if (matchEmbed.data.fields === undefined) return;
+        if (!isBtnClickedByChampion) return;
+
+        // Champion(btn)
+        if (i.customId === champion.username) {
+          championScore++;
+          matchEmbed.data.fields[0].value = `**__Champion__ (${championScore})\n  \`1\` ${champion}**`;
+
+          if (championScore === rounds) {
+            matchEmbed.data.fields[2].value = `*~~__Challenger__ (${challengerScore})\n \`2\` ${challenger}~~*`;
+            matchEmbed.setTitle(
+              `${Winneremoji}\`\`\`${champion.username} (${championScore} - ${challengerScore})\`\`\``
+            );
+            await i.update({
+              embeds: [matchEmbed],
+              files: [gameImg],
+              components: [],
+            });
+
+            const winner = await champion_sh.findOne({
+              userId: champion.id,
+              game: game,
+            });
+
+            await updateKothWinStreak(winner);
+            await updateLoserCooldown(challenger, game);
+            await updateKothLeaderboardChannel(channel);
+
+            matchCollector.stop();
+          } else {
+            await i.update({ embeds: [matchEmbed] });
+          }
+        }
+
+        // Challenger(btn)
+        if (i.customId === challenger.username) {
+          challengerScore++;
+          matchEmbed.data.fields[2].value = `**__Challenger__ (${challengerScore})\n \`2\` ${challenger}**`;
+
+          if (challengerScore === rounds) {
+            matchEmbed.data.fields[0].value = `*~~__Champion__ (${championScore})\n  \`1\`  ${champion}~~*`;
+            matchEmbed.setTitle(
+              `${Winneremoji}\`\`\`${challenger.username} (${championScore} - ${challengerScore})\`\`\``
+            );
+
+            await i.update({
+              embeds: [matchEmbed],
+              files: [gameImg],
+              components: [],
+            });
+
+            const challengerMember =
+              interaction.options.getMember("challenger");
+            const prevChampion = await findAndUpdateChampion(game, challenger);
+
+            await updateKothRole(
+              interaction,
+              prevChampion?.userId,
+              role!,
+              challengerMember
+            );
+            await updateLoserCooldown(champion, game);
+            await updateKothLeaderboardChannel(channel);
+          } else {
+            await i.update({ embeds: [matchEmbed] });
+          }
+        }
+
+        // Reset(btn)
+        if (i.customId === "Reset") {
+          championScore = 0;
+          challengerScore = 0;
+          matchEmbed.data.fields[0].value = `**__Champion__ (${championScore})\n  \`1\` ${champion}**`;
+          matchEmbed.data.fields[2].value = `**__Challenger__ (${challengerScore})\n \`2\` ${challenger}**`;
+          await i.update({ embeds: [matchEmbed] });
+        }
+
+        // Delete(btn)
+        if (i.customId === "Delete") {
+          await rep.delete();
+        }
+      });
+    });
   },
 };
-
-function validateCurrentGameChampion(
-  champions: ISetChampion[],
-  game: string
-): boolean {
-  for (const champion of champions) {
-    if (champion.game === game) return true;
-  }
-
-  return false;
-}

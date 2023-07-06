@@ -8,7 +8,7 @@ import {
   ButtonStyle,
 } from "discord.js";
 import { setTimeout as wait } from "node:timers/promises";
-import validationEmbed from "../helpers/embed/validationEmbed";
+import acceptionEmbed from "../helpers/embed/acceptionEmbed";
 import matchEmbed from "../helpers/embed/matchEmbed";
 import updateShadowGameRole from "../services/updateShadowGameRole";
 import {
@@ -93,7 +93,7 @@ export = {
     const endImageString = "yugioh-anime.gif";
     const endGameImg = new AttachmentBuilder(`./public/img/${endImageString}`);
 
-    const vEmbed = validationEmbed(opponent);
+    const vEmbed = acceptionEmbed(opponent);
     const vRow = new ActionRowBuilder<ButtonBuilder>()
       // Btn(1)
       .addComponents(
