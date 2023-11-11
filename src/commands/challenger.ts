@@ -201,7 +201,7 @@ export = {
 
             matchCollector.stop();
           } else {
-            await i.update({ embeds: [matchEmbed] });
+            await i.update({ embeds: [matchEmbed], files: [gameImg] });
           }
         }
 
@@ -235,7 +235,7 @@ export = {
             await updateLoserCooldown(champion, game);
             await updateKothLeaderboardChannel(channel);
           } else {
-            await i.update({ embeds: [matchEmbed] });
+            await i.update({ embeds: [matchEmbed], files: [gameImg] });
           }
         }
 
@@ -245,7 +245,7 @@ export = {
           challengerScore = 0;
           matchEmbed.data.fields[0].value = `**__Champion__ (${championScore})\n  \`1\` ${champion}**`;
           matchEmbed.data.fields[2].value = `**__Challenger__ (${challengerScore})\n \`2\` ${challenger}**`;
-          await i.update({ embeds: [matchEmbed] });
+          await i.update({ embeds: [matchEmbed], files: [gameImg] });
         }
 
         // Delete(btn)

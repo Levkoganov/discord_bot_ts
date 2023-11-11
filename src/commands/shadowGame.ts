@@ -156,7 +156,7 @@ export = {
             mCollector.stop();
             return;
           } else {
-            await i.update({ embeds: [matchEmbed] });
+            await i.update({ embeds: [matchEmbed], files: [startGameImg] });
           }
         }
 
@@ -185,7 +185,7 @@ export = {
             mCollector.stop();
             return;
           } else {
-            await i.update({ embeds: [matchEmbed] });
+            await i.update({ embeds: [matchEmbed], files: [startGameImg] });
           }
         }
 
@@ -196,7 +196,7 @@ export = {
           matchEmbed.data.fields[0].value = `**__Player1__ (${userScore})\n  \`1\` ${user}**`;
           matchEmbed.data.fields[2].value = `**__Player2__ (${opponentScore})\n  \`2\` ${opponent}**`;
 
-          await i.update({ embeds: [matchEmbed] });
+          await i.update({ embeds: [matchEmbed], files: [startGameImg] });
         }
 
         // Delete(btn)
