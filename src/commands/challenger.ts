@@ -8,25 +8,25 @@ import {
 
 import { setTimeout as wait } from "node:timers/promises";
 import champion_sh from "../models/champion_sh";
-import { updateLoserCooldown } from "../services/kothTimeLimit";
+import { updateLoserCooldown } from "../helpers/timer_func/kothTimeLimit";
 import getGameImg from "../helpers/getGameImg";
-import kothMatchEmbed from "../helpers/embed/matchEmbed";
-import updateKothWinStreak from "../services/updateKothWinStreak";
+import kothMatchEmbed from "../helpers/embed_func/matchEmbed";
+import updateKothWinStreak from "../helpers/db_func/updateKothWinStreak";
 import channel_sh from "../models/channel_sh";
-import updateKothLeaderboardChannel from "../services/updateLeaderboardChannel";
-import findAndUpdateChampion from "../services/findAndUpdateChampion";
-import updateKothRole from "../services/updateKothRole";
+import updateKothLeaderboardChannel from "../helpers/db_func/updateLeaderboardChannel";
+import findAndUpdateChampion from "../helpers/db_func/findAndUpdateChampion";
+import updateKothRole from "../helpers/db_func/updateKothRole";
 import {
   gamesOption,
   numberOfRoundsOption,
 } from "../constants/gameOptionsFunc";
 import { ACCEPTBTNROW, matchClickableBtnsRow } from "../constants/btnRows";
-import { filterInteraction } from "../services/filterUserInteractions";
-import acceptionEmbed from "../helpers/embed/acceptionEmbed";
+import { filterInteraction } from "../helpers/validation_func/filterUserInteractions";
+import acceptionEmbed from "../helpers/embed_func/acceptionEmbed";
 import {
-  authorizeCurrentGameChampion,
-  authorizeUserCommand,
-} from "../services/authorizeUserCommand";
+  validateCurrentGameChampion,
+  validateUserCommand,
+} from "../helpers/validation_func/validations";
 
 export = {
   data: new SlashCommandBuilder()
@@ -46,18 +46,16 @@ export = {
   ): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
-    // Base Variables
+    // Variables
     const kothRoleName = "KOTH - Champion";
     const { id } = interaction.guild;
     const champion = interaction.user;
     const game = interaction.options.getString("game", true);
     const challenger = interaction.options.getUser("challenger", true);
     const rounds = interaction.options.getNumber("rounds", true);
-
-    // Func Variables
     const userCurrentTitles = await champion_sh.find({ userId: champion.id });
     const kothLeaderboardChannel = await channel_sh.findOne({ guildId: id });
-    const isUserCurrentGameChampion = authorizeCurrentGameChampion(
+    const isUserCurrentGameChampion = validateCurrentGameChampion(
       userCurrentTitles,
       game
     );
@@ -65,7 +63,7 @@ export = {
       (role) => role.name === kothRoleName
     );
 
-    const isUserAuthorize = await authorizeUserCommand(
+    const isUserAuthorize = await validateUserCommand(
       interaction,
       champion,
       challenger,

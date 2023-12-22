@@ -1,8 +1,8 @@
 import { User } from "discord.js";
-import shadowGameTimeLimit_sh from "../models/shadowGameTimeLimit_sh";
+import shadowGameTimeLimit_sh from "../../models/shadowGameTimeLimit_sh";
 import moment from "moment";
-import { IUserCooldownTimer } from "../../types";
-import { cooldownTimer } from "../helpers/timeLimitCalculate";
+import { IUserCooldownTimer } from "../../../types";
+import { cooldownTimer } from "./timeLimitCalculate";
 
 export const checkShadowGameTimeLimit = async (
   player1: User,

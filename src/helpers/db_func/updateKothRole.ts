@@ -5,7 +5,7 @@ import {
   GuildMemberRoleManager,
   Role,
 } from "discord.js";
-import champion_sh from "../models/champion_sh";
+import champion_sh from "../../models/champion_sh";
 
 export default async (
   interaction: CommandInteraction,

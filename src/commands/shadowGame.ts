@@ -8,17 +8,17 @@ import {
   ButtonStyle,
 } from "discord.js";
 import { setTimeout as wait } from "node:timers/promises";
-import acceptionEmbed from "../helpers/embed/acceptionEmbed";
-import shadowGameMatchEmbed from "../helpers/embed/matchEmbed";
-import updateShadowGameRole from "../services/updateShadowGameRole";
+import acceptionEmbed from "../helpers/embed_func/acceptionEmbed";
+import shadowGameMatchEmbed from "../helpers/embed_func/matchEmbed";
+import updateShadowGameRole from "../helpers/db_func/updateShadowGameRole";
 import {
   checkShadowGameTimeLimit,
   updateShadowGameTimeLimit,
-} from "../services/shadowGameTimeLimit";
+} from "../helpers/timer_func/shadowGameTimeLimit";
 import { numberOfRoundsOption } from "../constants/gameOptionsFunc";
-import { authorizeUserCommand } from "../services/authorizeUserCommand";
+import { validateUserCommand } from "../helpers/validation_func/validations";
 import { ACCEPTBTNROW, matchClickableBtnsRow } from "../constants/btnRows";
-import { filterInteraction } from "../services/filterUserInteractions";
+import { filterInteraction } from "../helpers/validation_func/filterUserInteractions";
 
 export = {
   data: new SlashCommandBuilder()
@@ -45,7 +45,7 @@ export = {
       (role) => role.name === roleName
     );
 
-    const isUserAuthorize = await authorizeUserCommand(
+    const isUserAuthorize = await validateUserCommand(
       interaction,
       user,
       opponent,

@@ -1,6 +1,6 @@
 import { User } from "discord.js";
-import { ISetChampion } from "../../types";
-import champion_sh from "../models/champion_sh";
+import { ISetChampion } from "../../../types";
+import champion_sh from "../../models/champion_sh";
 
 export default async (
   game: string,

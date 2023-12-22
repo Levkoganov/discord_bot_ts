@@ -1,5 +1,5 @@
 import moment from "moment";
-import { IUserCooldownTimer } from "../../types";
+import { IUserCooldownTimer } from "../../../types";
 
 export function cooldownTimer(
   createdAt: string,

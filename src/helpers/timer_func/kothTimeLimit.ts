@@ -1,8 +1,8 @@
 import { User } from "discord.js";
-import kothTimeLimit_sh from "../models/kothTimeLimit_sh";
+import kothTimeLimit_sh from "../../models/kothTimeLimit_sh";
 import moment from "moment";
-import { IUserCooldownTimer } from "../../types";
-import { cooldownTimer } from "../helpers/timeLimitCalculate";
+import { IUserCooldownTimer } from "../../../types";
+import { cooldownTimer } from "./timeLimitCalculate";
 
 export const checkChallengerCooldown = async (
   user: User,

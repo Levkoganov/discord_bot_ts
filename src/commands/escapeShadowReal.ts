@@ -6,8 +6,11 @@ import {
 } from "discord.js";
 import moment from "moment";
 import shadowGameTimeLimit_sh from "../models/shadowGameTimeLimit_sh";
-import { showTimer, timePassedInHours } from "../helpers/timeLimitCalculate";
-import shadowRealmWelcomeEmbed from "../helpers/embed/shadowRealmWelcomeEmbed";
+import {
+  showTimer,
+  timePassedInHours,
+} from "../helpers/timer_func/timeLimitCalculate";
+import shadowRealmWelcomeEmbed from "../helpers/embed_func/shadowRealmWelcomeEmbed";
 import { setTimeout as wait } from "node:timers/promises";
 
 export = {

@@ -1,6 +1,6 @@
 import { TextChannel, AttachmentBuilder } from "discord.js";
-import champion_sh from "../models/champion_sh";
-import kothLeaderboardEmbed from "../helpers/embed/kothLeaderboardEmbed";
+import champion_sh from "../../models/champion_sh";
+import kothLeaderboardEmbed from "../embed_func/kothLeaderboardEmbed";
 
 export default async (channel: TextChannel): Promise<void> => {
   const botId = process.env.BOT_ID;

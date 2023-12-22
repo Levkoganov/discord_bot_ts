@@ -4,17 +4,17 @@ import {
   User,
   Role,
 } from "discord.js";
-import { checkChallengerCooldown } from "./kothTimeLimit";
-import { ISetChampion } from "../../types";
-import { IUserCooldownTimer } from "../../types";
+import { checkChallengerCooldown } from "../timer_func/kothTimeLimit";
+import { ISetChampion } from "../../../types";
+import { IUserCooldownTimer } from "../../../types";
 
-import { checkShadowGameTimeLimit } from "./shadowGameTimeLimit";
+import { checkShadowGameTimeLimit } from "../timer_func/shadowGameTimeLimit";
 let payload: IUserCooldownTimer = {
   cooldown: "",
   isBlocked: false,
 };
 
-export const authorizeUserCommand = async (
+export const validateUserCommand = async (
   interaction: CommandInteraction & GuildMemberRoleManager,
   user: User,
   opponent: User,
@@ -75,7 +75,7 @@ export const authorizeUserCommand = async (
   return true;
 };
 
-export const authorizeCurrentGameChampion = (
+export const validateCurrentGameChampion = (
   champions: ISetChampion[],
   game: string
 ): boolean => {

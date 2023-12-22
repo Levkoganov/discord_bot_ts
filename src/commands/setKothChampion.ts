@@ -7,9 +7,9 @@ import {
 } from "discord.js";
 
 import channel_sh from "../models/channel_sh";
-import updateKothRole from "../services/updateKothRole";
-import findAndUpdateChampion from "../services/findAndUpdateChampion";
-import updateKothLeaderboardChannel from "../services/updateLeaderboardChannel";
+import updateKothRole from "../helpers/db_func/updateKothRole";
+import findAndUpdateChampion from "../helpers/db_func/findAndUpdateChampion";
+import updateKothLeaderboardChannel from "../helpers/db_func/updateLeaderboardChannel";
 import { gamesOption } from "../constants/gameOptionsFunc";
 
 export = {
