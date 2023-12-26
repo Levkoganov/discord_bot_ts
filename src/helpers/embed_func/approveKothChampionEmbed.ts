@@ -4,14 +4,14 @@ import { EmbedBuilder } from "discord.js";
 
 export default (
   player: User,
-  game?: string | undefined,
+  game: string,
   imgPathString?: string | null | undefined
 ): EmbedBuilder => {
   return new EmbedBuilder()
     .setColor("Blurple")
-    .setTitle(game ? game : "Shadow game")
+    .setTitle(game)
     .setDescription(
-      `\`\`\`"${player.username}" \nmust accept to procced with the match. \`\`\``
+      `\`\`\`"${player.username}" \nPlease click on "accept" to become the new ${game} champion. \`\`\``
     )
     .setImage(imgPathString ? `attachment://${imgPathString}` : null);
 };
