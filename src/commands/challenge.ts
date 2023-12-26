@@ -28,6 +28,7 @@ import {
   validateUserCommand,
 } from "../helpers/validation_func/validations";
 import { findKothChampion } from "../helpers/db_func/findKothChampion";
+import approveKothChampionEmbed from "../helpers/embed_func/approveKothChampionEmbed";
 
 export = {
   data: new SlashCommandBuilder()
@@ -35,48 +36,102 @@ export = {
     .setDescription("Choose the champion")
     .addStringOption((option) => gamesOption(option))
     .addNumberOption((option) => numberOfRoundsOption(option)),
-  // .addUserOption((option) =>
-  //   option
-  //     .setName("challenge")
-  //     .setDescription("Select the Champion")
-  //     .setRequired(true)
-  // )
   async execute(
     interaction: CommandInteraction & GuildMemberRoleManager
   ): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
-    // const testGame = interaction.options.getString("game", true);
-    // const testchampion = (await champion_sh.findOne({ testGame })) as any;
-    // const { user } = await interaction.guild?.members.fetch(
-    //   testchampion.userId
-    // );
-    // console.log(test.user.username);
-    // return;
-
-    // Variables
-    const kothRoleName = "KOTH - Champion";
+    // Interaction variables
     const { id } = interaction.guild;
-    // const champion = interaction.user;
-    const game = interaction.options.getString("game", true);
-    const champion = await findKothChampion(game, interaction);
-    if (champion === undefined) {
-      return console.log("champion is undefinied");
-    }
-    // const challenger = interaction.options.getUser("challenger", true);
     const challenger = interaction.user;
+    const kothRoleName = "KOTH - Champion";
     const rounds = interaction.options.getNumber("rounds", true);
+    const game = interaction.options.getString("game", true);
 
-    const userCurrentTitles = await champion_sh.find({ userId: champion.id });
+    // Gameimg Variables
+    const imgPathString = getGameImg(game);
+    const gameImg = new AttachmentBuilder(`./public/img/${imgPathString}`);
+
+    // FN Variables
+    const champion = await findKothChampion(game, interaction);
     const kothLeaderboardChannel = await channel_sh.findOne({ guildId: id });
-    const isUserCurrentGameChampion = validateCurrentGameChampion(
-      userCurrentTitles,
-      game
-    );
+    const channel = interaction.guild.channels.cache.get(
+      kothLeaderboardChannel!.channelId
+    ) as TextChannel;
     const role = interaction.guild.roles.cache.find(
       (role) => role.name === kothRoleName
     );
 
+    if (champion === undefined) {
+      const approveKothCmapionEmbed = approveKothChampionEmbed(
+        challenger,
+        game,
+        imgPathString
+      );
+
+      const repApprove = await interaction.reply({
+        embeds: [approveKothCmapionEmbed],
+        components: [ACCEPTBTNROW],
+        files: [gameImg],
+        fetchReply: true,
+      });
+
+      const approveCollector = repApprove.createMessageComponentCollector({
+        time: 1000 * 60 * 2, // 2min
+      });
+
+      approveCollector.on("collect", async (i) => {
+        const isBtnClickedByChallenger = await filterInteraction(i, challenger);
+        if (!isBtnClickedByChallenger) return;
+
+        // Accept(btn)
+        if (i.customId === "Accept") {
+          const newChampion = interaction.guild.members.cache.get(
+            challenger.id
+          );
+
+          await updateKothRole(interaction, role!, newChampion);
+          await findAndUpdateChampion(game, challenger);
+          await updateKothLeaderboardChannel(channel);
+
+          approveKothCmapionEmbed.setDescription(
+            `\`\`\`"${challenger.username}" \nis now the new ${game} champion! \`\`\``
+          );
+
+          await i.update({
+            components: [],
+            embeds: [approveKothCmapionEmbed],
+            files: [gameImg],
+          });
+          approveCollector.stop();
+          return;
+        }
+
+        // Decline(btn)
+        if (i.customId === "Decline") {
+          await repApprove.edit({
+            components: [],
+            embeds: [],
+            files: [],
+            content: `\`\`\`${challenger.username} declined...\`\`\``,
+          });
+          await wait(3000);
+          await repApprove.delete();
+          approveCollector.stop();
+          return;
+        }
+      });
+      return;
+    }
+
+    const userCurrentTitles = await champion_sh.find({ userId: champion.id });
+
+    const isUserCurrentGameChampion = validateCurrentGameChampion(
+      userCurrentTitles,
+      game
+    );
+
+    // Validate if user may use the challenge command
     const isUserAuthorize = await validateUserCommand(
       interaction,
       champion,
@@ -89,12 +144,7 @@ export = {
 
     if (!isUserAuthorize) return;
 
-    const imgPathString = getGameImg(game);
-    const gameImg = new AttachmentBuilder(`./public/img/${imgPathString}`);
-
-    const acceptBtnRow = ACCEPTBTNROW;
     const acceptEmbed = acceptionEmbed(champion, true, game, imgPathString);
-
     const matchBtnRow = matchClickableBtnsRow(champion, challenger);
     const matchEmbed = kothMatchEmbed(
       champion,
@@ -109,21 +159,15 @@ export = {
     let challengerScore = 0;
     const Winneremoji = "<:trophy:988122907815325758>";
 
-    // Koth Channel
-    const channel = interaction.guild.channels.cache.get(
-      kothLeaderboardChannel!.channelId
-    ) as TextChannel;
-
     const rep = await interaction.reply({
       embeds: [acceptEmbed],
-      components: [acceptBtnRow],
+      components: [ACCEPTBTNROW],
       files: [gameImg],
       fetchReply: true,
     });
 
     const acceptCollector = rep.createMessageComponentCollector({
-      // time: 1000 * 60 * 2, // 2min
-      time: 1000 * 3, // 2min
+      time: 1000 * 60 * 2, // 2min
     });
 
     acceptCollector.on("collect", async (i) => {
@@ -236,15 +280,16 @@ export = {
               components: [],
             });
 
-            const challengerMember =
-              interaction.options.getMember("challenger");
+            const newChampion = interaction.guild.members.cache.get(
+              challenger.id
+            );
             const prevChampion = await findAndUpdateChampion(game, challenger);
 
             await updateKothRole(
               interaction,
-              prevChampion?.userId,
               role!,
-              challengerMember
+              newChampion,
+              prevChampion?.userId
             );
             await updateLoserCooldown(champion, game);
             await updateKothLeaderboardChannel(channel);
