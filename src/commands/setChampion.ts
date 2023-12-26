@@ -14,7 +14,7 @@ import { gamesOption } from "../constants/gameOptionsFunc";
 
 export = {
   data: new SlashCommandBuilder()
-    .setName("set-koth-champion")
+    .setName("set-champion")
     .setDescription("setting new koth champion")
 
     .addStringOption((option) => gamesOption(option))
@@ -32,10 +32,9 @@ export = {
     if (!interaction.isChatInputCommand()) return;
 
     const game = interaction.options.getString("game", true);
-    const championMember = interaction.options.getMember("new-champion");
     const newChampion = interaction.options.getUser("new-champion", true);
+    const championMember = interaction.guild.members.cache.get(newChampion.id);
     const { id } = interaction.guild;
-
     const moderatorsRoleName = "Moderators";
     const kothRoleName = "KOTH - Champion";
 
@@ -72,9 +71,9 @@ export = {
 
       await updateKothRole(
         interaction,
-        prevChampion?.userId,
         role,
-        championMember
+        championMember,
+        prevChampion?.userId
       );
 
       const { channelId } = kothLeaderboardChannel;
