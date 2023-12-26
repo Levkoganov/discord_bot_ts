@@ -14,14 +14,6 @@ export const gamesOption = (option: SlashCommandStringOption) =>
       value: "GG_Strive",
     })
     .addChoices({
-      name: "DNF Duel",
-      value: "DNF_Duel",
-    })
-    .addChoices({
-      name: "Tekken7",
-      value: "Tekken7",
-    })
-    .addChoices({
       name: "Tekken8",
       value: "Tekken8",
     })
@@ -30,12 +22,12 @@ export const gamesOption = (option: SlashCommandStringOption) =>
       value: "Guilty_Gear_Xrd_Rev_2",
     })
     .addChoices({
-      name: "BlazBlue CF",
-      value: "BlazBlue_CF",
+      name: "Granblue Fantasy Versus: Rising",
+      value: "Granblue_Fantasy_Versus_Rising",
     })
     .addChoices({
-      name: "Street Fighter VI",
-      value: "Street_Fighter_VI",
+      name: "Street Fighter 6",
+      value: "Street_Fighter_6",
     });
 
 export const numberOfRoundsOption = (option: SlashCommandNumberOption) =>
