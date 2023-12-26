@@ -1,17 +1,11 @@
-import {
-  APIInteractionDataResolvedGuildMember,
-  CommandInteraction,
-  GuildMember,
-  GuildMemberRoleManager,
-  Role,
-} from "discord.js";
+import { CommandInteraction, GuildMember, Role } from "discord.js";
 import champion_sh from "../../models/champion_sh";
 
 export default async (
   interaction: CommandInteraction,
-  prevChampionId: string | undefined,
   role: Role,
-  championMember: GuildMember | APIInteractionDataResolvedGuildMember | null
+  championMember: GuildMember | undefined,
+  prevChampionId?: string | undefined
 ): Promise<void> => {
   const numberOfTitles = await champion_sh.countDocuments({
     userId: prevChampionId,
@@ -22,5 +16,5 @@ export default async (
     prevChampion?.roles.remove(role);
   }
 
-  (championMember?.roles as GuildMemberRoleManager).add(role);
+  championMember?.roles.add(role);
 };
