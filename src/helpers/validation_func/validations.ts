@@ -66,7 +66,7 @@ export const validateUserCommand = async (
   if (isBlocked) {
     await interaction.reply({
       content: game
-        ? `**The \`Opponent\` can challenge the \`Champion\` once every \`12 hours\`**.\n\n\`CHALLENGER: (${opponent.username})\`\n\`GAME: (${game})\` \`\`\`time passed: ${cooldown} (HH:mm:ss)\`\`\``
+        ? `**\`You\` may challenge the \`Champion\` once every \`12 hours\`**.\n\n\`CURRENT CHAMPION:(${user.username})\`\n\`GAME:(${game})\` \`\`\`time passed: ${cooldown} (HH:mm:ss)\`\`\``
         : `**You can do a \`shadowgame\` once every \`3 hours\` with the same opponent **.\n\`OPPONENT: (${opponent.username})\`\n\n\`\`\`time passed: ${cooldown} (HH:mm:ss)\`\`\``,
       ephemeral: true,
     });
