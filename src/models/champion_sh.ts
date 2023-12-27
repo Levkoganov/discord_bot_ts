@@ -16,6 +16,10 @@ const setChampion = new Schema<ISetChampion>(
     game: reqString,
     username: reqString,
     winstreak: defaultNumber,
+    highestWinstreak: {
+      type: Schema.Types.ObjectId,
+      ref: "GameHighestWinstreak",
+    },
   },
   { timestamps: true }
 );
