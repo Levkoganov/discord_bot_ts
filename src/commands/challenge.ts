@@ -1,11 +1,4 @@
-import {
-  AttachmentBuilder,
-  CommandInteraction,
-  GuildMemberRoleManager,
-  SlashCommandBuilder,
-  TextChannel,
-} from "discord.js";
-
+import { AttachmentBuilder, CommandInteraction, GuildMemberRoleManager, SlashCommandBuilder, TextChannel } from "discord.js";
 import { setTimeout as wait } from "node:timers/promises";
 import champion_sh from "../models/champion_sh";
 import { updateLoserCooldown } from "../helpers/timer_func/kothTimeLimit";
@@ -16,19 +9,14 @@ import channel_sh from "../models/channel_sh";
 import updateKothLeaderboardChannel from "../helpers/db_func/updateLeaderboardChannel";
 import findAndUpdateChampion from "../helpers/db_func/findAndUpdateChampion";
 import updateKothRole from "../helpers/db_func/updateKothRole";
-import {
-  gamesOption,
-  numberOfRoundsOption,
-} from "../constants/gameOptionsFunc";
+import { gamesOption, numberOfRoundsOption } from "../constants/gameOptionsFunc";
 import { ACCEPTBTNROW, matchClickableBtnsRow } from "../constants/btnRows";
 import { filterInteraction } from "../helpers/validation_func/filterUserInteractions";
 import acceptionEmbed from "../helpers/embed_func/acceptionEmbed";
-import {
-  validateCurrentGameChampion,
-  validateUserCommand,
-} from "../helpers/validation_func/validations";
+import { validateCurrentGameChampion, validateUserCommand } from "../helpers/validation_func/validations";
 import { findKothChampion } from "../helpers/db_func/findKothChampion";
 import approveKothChampionEmbed from "../helpers/embed_func/approveKothChampionEmbed";
+import { findAndUpdateGameHigestWinstreak } from "../helpers/db_func/findAndUpdateGameHigestWinstreak";
 
 export = {
   data: new SlashCommandBuilder()
@@ -36,9 +24,7 @@ export = {
     .setDescription("Choose the champion")
     .addStringOption((option) => gamesOption(option))
     .addNumberOption((option) => numberOfRoundsOption(option)),
-  async execute(
-    interaction: CommandInteraction & GuildMemberRoleManager
-  ): Promise<void> {
+  async execute(interaction: CommandInteraction & GuildMemberRoleManager): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
     // Interaction variables
@@ -55,20 +41,11 @@ export = {
     // FN Variables
     const champion = await findKothChampion(game, interaction);
     const kothLeaderboardChannel = await channel_sh.findOne({ guildId: id });
-    const channel = interaction.guild.channels.cache.get(
-      kothLeaderboardChannel!.channelId
-    ) as TextChannel;
-    const role = interaction.guild.roles.cache.find(
-      (role) => role.name === kothRoleName
-    );
+    const channel = interaction.guild.channels.cache.get(kothLeaderboardChannel!.channelId) as TextChannel;
+    const role = interaction.guild.roles.cache.find((role) => role.name === kothRoleName);
 
     if (champion === undefined) {
-      const approveKothCmapionEmbed = approveKothChampionEmbed(
-        challenger,
-        game,
-        imgPathString
-      );
-
+      const approveKothCmapionEmbed = approveKothChampionEmbed(challenger, game, imgPathString);
       const repApprove = await interaction.reply({
         embeds: [approveKothCmapionEmbed],
         components: [ACCEPTBTNROW],
@@ -76,9 +53,7 @@ export = {
         fetchReply: true,
       });
 
-      const approveCollector = repApprove.createMessageComponentCollector({
-        time: 1000 * 60 * 2, // 2min
-      });
+      const approveCollector = repApprove.createMessageComponentCollector({ time: 1000 * 60 * 2 }); // 2min;
 
       approveCollector.on("collect", async (i) => {
         const isBtnClickedByChallenger = await filterInteraction(i, challenger);
@@ -86,17 +61,14 @@ export = {
 
         // Accept(btn)
         if (i.customId === "Accept") {
-          const newChampion = interaction.guild.members.cache.get(
-            challenger.id
-          );
+          const newChampionMember = interaction.guild.members.cache.get(challenger.id);
 
-          await updateKothRole(interaction, role!, newChampion);
+          await findAndUpdateGameHigestWinstreak(game, challenger);
+          await updateKothRole(interaction, role!, newChampionMember);
           await findAndUpdateChampion(game, challenger);
           await updateKothLeaderboardChannel(channel);
 
-          approveKothCmapionEmbed.setDescription(
-            `\`\`\`"${challenger.username}" \nis now the new ${game} champion! \`\`\``
-          );
+          approveKothCmapionEmbed.setDescription(`\`\`\`"${challenger.username}" \nis now the new ${game} champion! \`\`\``);
 
           await i.update({
             components: [],
@@ -115,6 +87,7 @@ export = {
             files: [],
             content: `\`\`\`${challenger.username} declined...\`\`\``,
           });
+
           await wait(3000);
           await repApprove.delete();
           approveCollector.stop();
@@ -125,11 +98,7 @@ export = {
     }
 
     const userCurrentTitles = await champion_sh.find({ userId: champion.id });
-
-    const isUserCurrentGameChampion = validateCurrentGameChampion(
-      userCurrentTitles,
-      game
-    );
+    const isUserCurrentGameChampion = validateCurrentGameChampion(userCurrentTitles, game);
 
     // Validate if user may use the challenge command
     const isUserAuthorize = await validateUserCommand(
@@ -141,19 +110,11 @@ export = {
       isUserCurrentGameChampion,
       kothLeaderboardChannel
     );
-
-    if (!isUserAuthorize) return;
+    if (isUserAuthorize === false) return;
 
     const acceptEmbed = acceptionEmbed(champion, true, game, imgPathString);
     const matchBtnRow = matchClickableBtnsRow(champion, challenger);
-    const matchEmbed = kothMatchEmbed(
-      champion,
-      challenger,
-      rounds,
-      false,
-      game,
-      imgPathString
-    );
+    const matchEmbed = kothMatchEmbed(champion, challenger, rounds, false, game, imgPathString);
 
     let championScore = 0;
     let challengerScore = 0;
@@ -166,9 +127,7 @@ export = {
       fetchReply: true,
     });
 
-    const acceptCollector = rep.createMessageComponentCollector({
-      time: 1000 * 60 * 2, // 2min
-    });
+    const acceptCollector = rep.createMessageComponentCollector({ time: 1000 * 60 * 2 }); // 2min;
 
     acceptCollector.on("collect", async (i) => {
       const isBtnClickedByChallenger = await filterInteraction(i, champion);
@@ -223,9 +182,7 @@ export = {
         return;
       }
 
-      const matchCollector = rep.createMessageComponentCollector({
-        time: 1000 * 60 * 90, // 90min
-      });
+      const matchCollector = rep.createMessageComponentCollector({ time: 1000 * 60 * 90 }); // 90min
 
       matchCollector.on("collect", async (i) => {
         const isBtnClickedByChampion = await filterInteraction(i, champion);
@@ -239,21 +196,17 @@ export = {
 
           if (championScore === rounds) {
             matchEmbed.data.fields[2].value = `*~~__Challenger__ (${challengerScore})\n \`2\` ${challenger}~~*`;
-            matchEmbed.setTitle(
-              `${Winneremoji}\`\`\`${champion.username} (${championScore} - ${challengerScore})\`\`\``
-            );
+            matchEmbed.setTitle(`${Winneremoji}\`\`\`${champion.username} (${championScore} - ${challengerScore})\`\`\``);
+
             await i.update({
               embeds: [matchEmbed],
               files: [gameImg],
               components: [],
             });
 
-            const winner = await champion_sh.findOne({
-              userId: champion.id,
-              game: game,
-            });
-
-            await updateKothWinStreak(winner);
+            const winner = await champion_sh.findOne({ userId: champion.id, game: game });
+            const winnerWinstreak = await updateKothWinStreak(winner);
+            await findAndUpdateGameHigestWinstreak(game, champion, winnerWinstreak);
             await updateLoserCooldown(challenger, game);
             await updateKothLeaderboardChannel(channel);
 
@@ -270,9 +223,7 @@ export = {
 
           if (challengerScore === rounds) {
             matchEmbed.data.fields[0].value = `*~~__Champion__ (${championScore})\n  \`1\`  ${champion}~~*`;
-            matchEmbed.setTitle(
-              `${Winneremoji}\`\`\`${challenger.username} (${championScore} - ${challengerScore})\`\`\``
-            );
+            matchEmbed.setTitle(`${Winneremoji}\`\`\`${challenger.username} (${championScore} - ${challengerScore})\`\`\``);
 
             await i.update({
               embeds: [matchEmbed],
@@ -280,17 +231,13 @@ export = {
               components: [],
             });
 
-            const newChampion = interaction.guild.members.cache.get(
-              challenger.id
-            );
             const prevChampion = await findAndUpdateChampion(game, challenger);
+            const newChampionMember = interaction.guild.members.cache.get(challenger.id);
+            const winner = await champion_sh.findOne({ userId: challenger.id, game: game });
+            const winnerWinstreak = await updateKothWinStreak(winner);
 
-            await updateKothRole(
-              interaction,
-              role!,
-              newChampion,
-              prevChampion?.userId
-            );
+            await findAndUpdateGameHigestWinstreak(game, challenger, winnerWinstreak);
+            await updateKothRole(interaction, role!, newChampionMember, prevChampion?.userId);
             await updateLoserCooldown(champion, game);
             await updateKothLeaderboardChannel(channel);
           } else {
