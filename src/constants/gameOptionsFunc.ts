@@ -14,6 +14,10 @@ export const gamesOption = (option: SlashCommandStringOption) =>
       value: "GG_Strive",
     })
     .addChoices({
+      name: "Tekken7",
+      value: "Tekken7",
+    })
+    .addChoices({
       name: "Tekken8",
       value: "Tekken8",
     })
