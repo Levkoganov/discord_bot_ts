@@ -1,6 +1,5 @@
 import { CommandInteraction, GuildMemberRoleManager, User, Role } from "discord.js";
 import { checkChallengerCooldown } from "../timer_func/kothTimeLimit";
-import { ISetChampion } from "../../../types";
 import { IUserCooldownTimer } from "../../../types";
 
 import { checkShadowGameTimeLimit } from "../timer_func/shadowGameTimeLimit";
@@ -14,9 +13,8 @@ export const validateUserCommand = async (
   user: User,
   opponent: User,
   role: Role | undefined,
-  game?: string | undefined,
-  isCurrentGameChampion?: boolean | undefined,
-  kothLeaderboardChannel?: any
+  kothLeaderboardChannel?: any,
+  game?: string | undefined
 ): Promise<boolean> => {
   if (game === undefined) {
     payload = await checkShadowGameTimeLimit(user, opponent);
@@ -26,14 +24,6 @@ export const validateUserCommand = async (
 
   const { cooldown, isBlocked } = payload;
 
-  if (!isCurrentGameChampion && isCurrentGameChampion !== undefined) {
-    await interaction.reply({
-      content: `Only the \`${game}\` champion can use this command`,
-      ephemeral: true,
-    });
-
-    return false;
-  }
   if (user.id === opponent.id) {
     await interaction.reply({
       content: "You cannot select yourself as a opponent...",
@@ -68,12 +58,4 @@ export const validateUserCommand = async (
     return false;
   }
   return true;
-};
-
-export const validateCurrentGameChampion = (champions: ISetChampion[], game: string): boolean => {
-  for (const champion of champions) {
-    if (champion.game === game) return true;
-  }
-
-  return false;
 };
