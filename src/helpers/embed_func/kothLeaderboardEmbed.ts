@@ -16,7 +16,7 @@ export default (champions: ISetChampion[]): EmbedBuilder => {
   champions.forEach((data) => {
     embed.addFields({
       name: `__${data.game}__`,
-      value: `\`\`\`${data.username} \nWinstreak: ${data.winstreak} \`\`\``,
+      value: `\`\`\`Champion: ${data.username} \nWinstreak: ${data.winstreak} \n\n🥇Highest Winstreak: ${data.highestWinstreak.winstreak} (${data.highestWinstreak.username}) \`\`\``,
     });
   });
 
