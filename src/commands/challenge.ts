@@ -13,10 +13,12 @@ import { gamesOption, numberOfRoundsOption } from "../constants/gameOptionsFunc"
 import { ACCEPTBTNROW, matchClickableBtnsRow } from "../constants/btnRows";
 import { filterInteraction } from "../helpers/validation_func/filterUserInteractions";
 import acceptionEmbed from "../helpers/embed_func/acceptionEmbed";
-import { validateCurrentGameChampion, validateUserCommand } from "../helpers/validation_func/validations";
+import { validateUserCommand } from "../helpers/validation_func/validations";
 import { findKothChampion } from "../helpers/db_func/findKothChampion";
 import approveKothChampionEmbed from "../helpers/embed_func/approveKothChampionEmbed";
 import { findAndUpdateGameHigestWinstreak } from "../helpers/db_func/findAndUpdateGameHigestWinstreak";
+import NodeCache from "node-cache";
+const myCache = new NodeCache();
 
 export = {
   data: new SlashCommandBuilder()
@@ -27,12 +29,16 @@ export = {
   async execute(interaction: CommandInteraction & GuildMemberRoleManager): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
+    // Variables
+    const kothRoleName = "KOTH - Champion";
+    const ttlInSeconds = 90 * 60; // 90min
+
     // Interaction variables
     const { id } = interaction.guild;
     const challenger = interaction.user;
-    const kothRoleName = "KOTH - Champion";
     const rounds = interaction.options.getNumber("rounds", true);
     const game = interaction.options.getString("game", true);
+    const _getOnGoingGame = myCache.get(`gameInProgress_${game}`);
 
     // Gameimg Variables
     const imgPathString = getGameImg(game);
@@ -44,6 +50,15 @@ export = {
     const channel = interaction.guild.channels.cache.get(kothLeaderboardChannel!.channelId) as TextChannel;
     const role = interaction.guild.roles.cache.find((role) => role.name === kothRoleName);
 
+    if (_getOnGoingGame !== undefined) {
+      await interaction.reply({
+        content: `\`\`\`There is ongoing challenge in ${game}. \nTry again later. \`\`\``,
+        ephemeral: true,
+      });
+
+      return;
+    }
+
     if (champion === undefined) {
       const approveKothCmapionEmbed = approveKothChampionEmbed(challenger, game, imgPathString);
       const repApprove = await interaction.reply({
@@ -52,6 +67,8 @@ export = {
         files: [gameImg],
         fetchReply: true,
       });
+
+      myCache.set(`gameInProgress_${game}`, `${game}`, ttlInSeconds);
 
       const approveCollector = repApprove.createMessageComponentCollector({ time: 1000 * 60 * 2 }); // 2min;
 
@@ -76,6 +93,7 @@ export = {
             files: [gameImg],
           });
           approveCollector.stop();
+          myCache.del(`gameInProgress_${game}`);
           return;
         }
 
@@ -91,25 +109,33 @@ export = {
           await wait(3000);
           await repApprove.delete();
           approveCollector.stop();
+          myCache.del(`gameInProgress_${game}`);
           return;
         }
       });
+
+      approveCollector.on("end", async (_, reason) => {
+        if (reason === "time") {
+          await repApprove.edit({
+            components: [],
+            embeds: [],
+            files: [],
+            content: `\`\`\`${challenger.username} didn't accept in time...\`\`\``,
+          });
+
+          await wait(3000);
+          await repApprove.delete();
+          approveCollector.stop();
+          myCache.del(`gameInProgress_${game}`);
+          return;
+        }
+      });
+
       return;
     }
 
-    const userCurrentTitles = await champion_sh.find({ userId: champion.id });
-    const isUserCurrentGameChampion = validateCurrentGameChampion(userCurrentTitles, game);
-
     // Validate if user may use the challenge command
-    const isUserAuthorize = await validateUserCommand(
-      interaction,
-      champion,
-      challenger,
-      role,
-      game,
-      isUserCurrentGameChampion,
-      kothLeaderboardChannel
-    );
+    const isUserAuthorize = await validateUserCommand(interaction, champion, challenger, role, kothLeaderboardChannel, game);
     if (isUserAuthorize === false) return;
 
     const acceptEmbed = acceptionEmbed(champion, true, game, imgPathString);
@@ -128,6 +154,8 @@ export = {
     });
 
     const acceptCollector = rep.createMessageComponentCollector({ time: 1000 * 60 * 2 }); // 2min;
+
+    myCache.set(`gameInProgress_${game}`, `${game}`, ttlInSeconds);
 
     acceptCollector.on("collect", async (i) => {
       const isBtnClickedByChallenger = await filterInteraction(i, champion);
@@ -163,6 +191,7 @@ export = {
         await wait(3000);
         await rep.delete();
         acceptCollector.stop();
+        myCache.del(`gameInProgress_${game}`);
         return;
       }
     });
@@ -179,6 +208,7 @@ export = {
         await wait(3000);
         await rep.delete();
         acceptCollector.stop();
+        myCache.del(`gameInProgress_${game}`);
         return;
       }
 
@@ -211,6 +241,7 @@ export = {
             await updateKothLeaderboardChannel(channel);
 
             matchCollector.stop();
+            myCache.del(`gameInProgress_${game}`);
           } else {
             await i.update({ embeds: [matchEmbed], files: [gameImg] });
           }
@@ -240,6 +271,9 @@ export = {
             await updateKothRole(interaction, role!, newChampionMember, prevChampion?.userId);
             await updateLoserCooldown(champion, game);
             await updateKothLeaderboardChannel(channel);
+
+            matchCollector.stop();
+            myCache.del(`gameInProgress_${game}`);
           } else {
             await i.update({ embeds: [matchEmbed], files: [gameImg] });
           }
@@ -256,6 +290,7 @@ export = {
 
         // Delete(btn)
         if (i.customId === "Delete") {
+          myCache.del(`gameInProgress_${game}`);
           await rep.delete();
         }
       });
