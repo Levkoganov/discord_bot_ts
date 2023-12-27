@@ -10,6 +10,10 @@ export const gamesOption = (option: SlashCommandStringOption) =>
       value: "Dragonball_FighterZ",
     })
     .addChoices({
+      name: "Mortal Kombat 1",
+      value: "Mortal_Kombat_1",
+    })
+    .addChoices({
       name: "GG Strive",
       value: "GG_Strive",
     })
