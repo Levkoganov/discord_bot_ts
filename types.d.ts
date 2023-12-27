@@ -13,6 +13,7 @@ export interface ISetChampion {
   game: string;
   username: string;
   winstreak: number;
+  highestWinstreak: IGameHighestWinstreak;
 }
 
 export interface IChannel {
@@ -56,4 +57,12 @@ export interface IPlayerScore {
   lose: number;
   score: number;
   rank?: number;
+}
+
+export interface IGameHighestWinstreak {
+  _id: ObjectId;
+  userId: string;
+  game: string;
+  username: string;
+  winstreak: number;
 }
