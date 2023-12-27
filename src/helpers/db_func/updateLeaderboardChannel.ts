@@ -5,12 +5,10 @@ import kothLeaderboardEmbed from "../embed_func/kothLeaderboardEmbed";
 export default async (channel: TextChannel): Promise<void> => {
   const botId = process.env.BOT_ID;
   const allChannelMsgs = await channel.messages.fetch();
-  const fgcBotChannelMsgs = allChannelMsgs.find(
-    (msg) => msg.author.id === botId
-  );
+  const fgcBotChannelMsgs = allChannelMsgs.find((msg) => msg.author.id === botId);
 
   const leaderboardLogo = new AttachmentBuilder("./public/img/FGC.png");
-  const champions = await champion_sh.find();
+  const champions = await champion_sh.find().populate("highestWinstreak", ["username", "winstreak"]);
   const embed = kothLeaderboardEmbed(champions);
 
   if (fgcBotChannelMsgs === undefined) {
