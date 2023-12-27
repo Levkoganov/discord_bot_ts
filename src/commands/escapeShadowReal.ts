@@ -1,40 +1,24 @@
-import {
-  SlashCommandBuilder,
-  CommandInteraction,
-  GuildMemberRoleManager,
-  AttachmentBuilder,
-} from "discord.js";
+import { SlashCommandBuilder, CommandInteraction, GuildMemberRoleManager, AttachmentBuilder } from "discord.js";
 import moment from "moment";
 import shadowGameTimeLimit_sh from "../models/shadowGameTimeLimit_sh";
-import {
-  showTimer,
-  timePassedInHours,
-} from "../helpers/timer_func/timeLimitCalculate";
+import { showTimer, timePassedInHours } from "../helpers/timer_func/timeLimitCalculate";
 import shadowRealmWelcomeEmbed from "../helpers/embed_func/shadowRealmWelcomeEmbed";
 import { setTimeout as wait } from "node:timers/promises";
 
 export = {
-  data: new SlashCommandBuilder()
-    .setName("escape")
-    .setDescription("Escape the shadow realm"),
+  data: new SlashCommandBuilder().setName("escape").setDescription("Escape the shadow realm"),
 
-  async execute(
-    interaction: CommandInteraction & GuildMemberRoleManager
-  ): Promise<void> {
+  async execute(interaction: CommandInteraction & GuildMemberRoleManager): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
     const user = interaction.user;
     const roleName = "Niftar";
-    const role = interaction.member.roles.cache.find(
-      (role) => role.name === roleName
-    );
+    const role = interaction.member.roles.cache.find((role) => role.name === roleName);
 
     if (role) {
       const currentLocalTime = moment().format();
 
-      const lastLost = await shadowGameTimeLimit_sh
-        .find({ loserId: user.id })
-        .sort({ createdAt: -1 });
+      const lastLost = await shadowGameTimeLimit_sh.find({ loserId: user.id }).sort({ createdAt: -1 });
 
       if (lastLost.length === 0) {
         await interaction.reply({
@@ -48,10 +32,7 @@ export = {
         return;
       }
 
-      const timePassInHours = timePassedInHours(
-        currentLocalTime,
-        lastLost[0].createdAt
-      );
+      const timePassInHours = timePassedInHours(currentLocalTime, lastLost[0].createdAt);
 
       const cooldown = showTimer(currentLocalTime, lastLost[0].createdAt);
       if (timePassInHours >= 1) {

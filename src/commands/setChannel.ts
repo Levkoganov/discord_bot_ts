@@ -13,27 +13,14 @@ export = {
   data: new SlashCommandBuilder()
     .setName("set-channel")
     .setDescription("setting channel leaderboards")
-    .addChannelOption((option) =>
-      option
-        .setName("channel")
-        .setDescription("pick a channel")
-        .setRequired(true)
-    ),
+    .addChannelOption((option) => option.setName("channel").setDescription("pick a channel").setRequired(true)),
 
-  async execute(
-    interaction: CommandInteraction & GuildMemberRoleManager
-  ): Promise<void> {
+  async execute(interaction: CommandInteraction & GuildMemberRoleManager): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
     const moderatorsRoleName = "Moderators";
-    const isAdmin = interaction.member.permissions.has(
-      PermissionsBitField.Flags.Administrator
-    );
-
-    const isMod = interaction.member.roles.cache.some(
-      (role) => role.name === moderatorsRoleName
-    );
-
+    const isAdmin = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
+    const isMod = interaction.member.roles.cache.some((role) => role.name === moderatorsRoleName);
     const channel = interaction.options.getChannel("channel", true);
 
     if (channel.type !== 0) {
@@ -68,10 +55,7 @@ export = {
   },
 };
 
-async function setChannel(
-  guildId: string,
-  channel: TextChannel | APIInteractionDataResolvedChannel
-): Promise<boolean> {
+async function setChannel(guildId: string, channel: TextChannel | APIInteractionDataResolvedChannel): Promise<boolean> {
   const { id, name } = channel;
   const filter = { guildId: guildId };
   const update = {

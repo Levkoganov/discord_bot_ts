@@ -4,10 +4,7 @@ import moment from "moment";
 import { IUserCooldownTimer } from "../../../types";
 import { cooldownTimer } from "./timeLimitCalculate";
 
-export const checkChallengerCooldown = async (
-  user: User,
-  game: string
-): Promise<IUserCooldownTimer> => {
+export const checkChallengerCooldown = async (user: User, game: string): Promise<IUserCooldownTimer> => {
   const userCooldownTimer: IUserCooldownTimer = {
     isBlocked: false,
     cooldown: "",
@@ -46,11 +43,7 @@ export const updateLoserCooldown = async (user: User, game: string) => {
     const filter = { "games.name": game, _id: id };
     const update = { "games.$.createdAt": currentLocalTime };
     const options = { new: true };
-    const gameCooldown = await kothTimeLimit_sh.findOneAndUpdate(
-      filter,
-      { $set: update },
-      options
-    );
+    const gameCooldown = await kothTimeLimit_sh.findOneAndUpdate(filter, { $set: update }, options);
 
     if (!gameCooldown) {
       loserPrevCooldown.games.push({

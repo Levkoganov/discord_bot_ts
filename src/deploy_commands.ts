@@ -9,13 +9,9 @@ export default (): void => {
   const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
 
   rest
-    .put(
-      Routes.applicationGuildCommands(
-        process.env.DISCORD_CLIENT_ID,
-        process.env.DISCORD_GUILD_ID
-      ),
-      { body: commandList.map((command) => command.toJSON()) }
-    )
+    .put(Routes.applicationGuildCommands(process.env.DISCORD_CLIENT_ID, process.env.DISCORD_GUILD_ID), {
+      body: commandList.map((command) => command.toJSON()),
+    })
     .then(() => console.log("Successfully registered application commands."))
     .catch((err) => console.error(err));
 };
@@ -23,9 +19,7 @@ export default (): void => {
 const slashCommandsList = (): SlashCommandBuilder[] => {
   const commands: SlashCommandBuilder[] = [];
   const commandsPath = join(__dirname, "./commands");
-  const commandFiles = readdirSync(commandsPath).filter((file) =>
-    file.endsWith(".js")
-  );
+  const commandFiles = readdirSync(commandsPath).filter((file) => file.endsWith(".js"));
 
   for (const file of commandFiles) {
     const filePath = join(commandsPath, file);

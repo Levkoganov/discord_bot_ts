@@ -4,10 +4,7 @@ import moment from "moment";
 import { IUserCooldownTimer } from "../../../types";
 import { cooldownTimer } from "./timeLimitCalculate";
 
-export const checkShadowGameTimeLimit = async (
-  player1: User,
-  player2: User
-): Promise<IUserCooldownTimer> => {
+export const checkShadowGameTimeLimit = async (player1: User, player2: User): Promise<IUserCooldownTimer> => {
   const { id: p1Id } = player1;
   const { id: p2Id } = player2;
   const currentLocalTime = moment().format();
@@ -39,11 +36,7 @@ export const checkShadowGameTimeLimit = async (
   return playersCooldownTimer;
 };
 
-export const updateShadowGameTimeLimit = async (
-  player1: User,
-  player2: User,
-  loserId: string
-): Promise<void> => {
+export const updateShadowGameTimeLimit = async (player1: User, player2: User, loserId: string): Promise<void> => {
   const { id: p1Id, username: p1Username } = player1;
   const { id: p2Id, username: p2UserName } = player2;
   const currentLocalTime = moment().format();

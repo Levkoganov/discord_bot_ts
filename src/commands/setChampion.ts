@@ -54,7 +54,7 @@ export = {
       await findAndUpdateGameHigestWinstreak(game, newChampion);
       await updateKothRole(interaction, role, championMember, prevChampion?.userId);
       await updateKothLeaderboardChannel(channel);
-      
+
       await interaction.reply({
         content: `\`${newChampion.username}\` is the new champion!`,
         ephemeral: true,

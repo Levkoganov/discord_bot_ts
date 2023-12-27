@@ -1,20 +1,9 @@
-import {
-  SlashCommandBuilder,
-  CommandInteraction,
-  GuildMemberRoleManager,
-  AttachmentBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-} from "discord.js";
+import { SlashCommandBuilder, CommandInteraction, GuildMemberRoleManager, AttachmentBuilder } from "discord.js";
 import { setTimeout as wait } from "node:timers/promises";
 import acceptionEmbed from "../helpers/embed_func/acceptionEmbed";
 import shadowGameMatchEmbed from "../helpers/embed_func/matchEmbed";
 import updateShadowGameRole from "../helpers/db_func/updateShadowGameRole";
-import {
-  checkShadowGameTimeLimit,
-  updateShadowGameTimeLimit,
-} from "../helpers/timer_func/shadowGameTimeLimit";
+import { updateShadowGameTimeLimit } from "../helpers/timer_func/shadowGameTimeLimit";
 import { numberOfRoundsOption } from "../constants/gameOptionsFunc";
 import { validateUserCommand } from "../helpers/validation_func/validations";
 import { ACCEPTBTNROW, matchClickableBtnsRow } from "../constants/btnRows";
@@ -25,39 +14,23 @@ export = {
     .setName("shadowgame")
     .setDescription("Choose the challenger")
     .addNumberOption((option) => numberOfRoundsOption(option))
-    .addUserOption((option) =>
-      option
-        .setName("opponent")
-        .setDescription("Choose your opponent")
-        .setRequired(true)
-    ),
+    .addUserOption((option) => option.setName("opponent").setDescription("Choose your opponent").setRequired(true)),
 
-  async execute(
-    interaction: CommandInteraction & GuildMemberRoleManager
-  ): Promise<void> {
+  async execute(interaction: CommandInteraction & GuildMemberRoleManager): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
     const roleName = "Niftar";
     const user = interaction.user;
     const opponent = interaction.options.getUser("opponent", true);
     const rounds = interaction.options.getNumber("rounds", true);
-    const role = interaction.guild.roles.cache.find(
-      (role) => role.name === roleName
-    );
+    const role = interaction.guild.roles.cache.find((role) => role.name === roleName);
 
-    const isUserAuthorize = await validateUserCommand(
-      interaction,
-      user,
-      opponent,
-      role
-    );
+    const isUserAuthorize = await validateUserCommand(interaction, user, opponent, role);
 
     if (!isUserAuthorize) return;
 
     const startImageString = "shadowRealm.png";
-    const startGameImg = new AttachmentBuilder(
-      `./public/img/${startImageString}`
-    );
+    const startGameImg = new AttachmentBuilder(`./public/img/${startImageString}`);
 
     const endImageString = "yugioh-anime.gif";
     const endGameImg = new AttachmentBuilder(`./public/img/${endImageString}`);

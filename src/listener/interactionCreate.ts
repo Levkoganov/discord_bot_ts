@@ -8,10 +8,7 @@ export default (client: ExtendedClient): void => {
   });
 };
 
-const handleSlashCommand = async (
-  client: ExtendedClient,
-  interaction: CommandInteraction
-): Promise<void> => {
+const handleSlashCommand = async (client: ExtendedClient, interaction: CommandInteraction): Promise<void> => {
   const command = client.commands.get(interaction.commandName);
   if (!command) {
     console.error(`No command matching ${interaction.commandName} was found.`);

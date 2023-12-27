@@ -18,7 +18,4 @@ const setGameHighestWinstreak = new Schema<IGameHighestWinstreak>({
   winstreak: defaultNumber,
 });
 
-export default model<IGameHighestWinstreak>(
-  "GameHighestWinstreak",
-  setGameHighestWinstreak
-);
+export default model<IGameHighestWinstreak>("GameHighestWinstreak", setGameHighestWinstreak);

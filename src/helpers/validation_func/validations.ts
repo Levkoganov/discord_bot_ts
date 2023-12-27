@@ -1,9 +1,4 @@
-import {
-  CommandInteraction,
-  GuildMemberRoleManager,
-  User,
-  Role,
-} from "discord.js";
+import { CommandInteraction, GuildMemberRoleManager, User, Role } from "discord.js";
 import { checkChallengerCooldown } from "../timer_func/kothTimeLimit";
 import { ISetChampion } from "../../../types";
 import { IUserCooldownTimer } from "../../../types";
@@ -75,10 +70,7 @@ export const validateUserCommand = async (
   return true;
 };
 
-export const validateCurrentGameChampion = (
-  champions: ISetChampion[],
-  game: string
-): boolean => {
+export const validateCurrentGameChampion = (champions: ISetChampion[], game: string): boolean => {
   for (const champion of champions) {
     if (champion.game === game) return true;
   }

@@ -8,9 +8,7 @@ export const setSlashCommands = (clientCommand: ExtendedClient): void => {
   clientCommand.commands = new Collection();
 
   const commandsPath = join(__dirname, "../commands");
-  const commandFiles = readdirSync(commandsPath).filter((file) =>
-    file.endsWith(".js")
-  ); // Get all "commands" files
+  const commandFiles = readdirSync(commandsPath).filter((file) => file.endsWith(".js")); // Get all "commands" files
 
   for (const file of commandFiles) {
     const filePath = join(commandsPath, file);

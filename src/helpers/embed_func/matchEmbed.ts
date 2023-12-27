@@ -10,15 +10,9 @@ export default (
   game?: string | undefined,
   imgPathString?: string | null | undefined
 ): EmbedBuilder => {
-  const championInfo = isShadowGame
-    ? `**__Player1__ (0) \n \`1\` ${champion}**`
-    : `**__Champion__ (0) \n \`1\` ${champion}**`;
-  const challengerInfo = isShadowGame
-    ? `**__Player2__ (0) \n \`2\` ${challenger}**`
-    : `**__Challenger__ (0) \n \`2\` ${challenger}**`;
-  const titleInfo = isShadowGame
-    ? `\`\`\`first to ${rounds}\`\`\``
-    : `\`\`\`Match - first to ${rounds}\`\`\``;
+  const championInfo = isShadowGame ? `**__Player1__ (0) \n \`1\` ${champion}**` : `**__Champion__ (0) \n \`1\` ${champion}**`;
+  const challengerInfo = isShadowGame ? `**__Player2__ (0) \n \`2\` ${challenger}**` : `**__Challenger__ (0) \n \`2\` ${challenger}**`;
+  const titleInfo = isShadowGame ? `\`\`\`first to ${rounds}\`\`\`` : `\`\`\`Match - first to ${rounds}\`\`\``;
 
   return new EmbedBuilder()
     .setColor("#5865F2")

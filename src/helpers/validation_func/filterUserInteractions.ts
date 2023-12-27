@@ -1,9 +1,6 @@
 import { MessageComponentInteraction, User } from "discord.js";
 
-export const filterInteraction = async (
-  i: MessageComponentInteraction,
-  user: User
-) => {
+export const filterInteraction = async (i: MessageComponentInteraction, user: User) => {
   if (i.user.id === user.id) return true;
   else {
     await i.reply({
