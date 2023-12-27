@@ -151,6 +151,7 @@ export = {
       components: [ACCEPTBTNROW],
       files: [gameImg],
       fetchReply: true,
+      content: `<@${champion.id}>`,
     });
 
     const acceptCollector = rep.createMessageComponentCollector({ time: 1000 * 60 * 2 }); // 2min;
