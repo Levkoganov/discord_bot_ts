@@ -70,7 +70,7 @@ export = {
 
       myCache.set(`gameInProgress_${game}`, `${game}`, ttlInSeconds);
 
-      const approveCollector = repApprove.createMessageComponentCollector({ time: 1000 * 60 * 2 }); // 2min;
+      const approveCollector = repApprove.createMessageComponentCollector({ time: 1000 * 60 * 10 }); // 10min;
 
       approveCollector.on("collect", async (i) => {
         const isBtnClickedByChallenger = await filterInteraction(i, challenger);
@@ -154,7 +154,7 @@ export = {
       content: `<@${champion.id}>`,
     });
 
-    const acceptCollector = rep.createMessageComponentCollector({ time: 1000 * 60 * 2 }); // 2min;
+    const acceptCollector = rep.createMessageComponentCollector({ time: 1000 * 60 * 10 }); // 10min;
 
     myCache.set(`gameInProgress_${game}`, `${game}`, ttlInSeconds);
 
