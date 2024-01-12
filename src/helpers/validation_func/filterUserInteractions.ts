@@ -4,7 +4,7 @@ export const filterInteraction = async (i: MessageComponentInteraction, user: Us
   if (i.user.id === user.id) return true;
   else {
     await i.reply({
-      content: `These buttons aren't for you...`,
+      content: `This button is not for you.`,
       ephemeral: true,
     });
     return false;
