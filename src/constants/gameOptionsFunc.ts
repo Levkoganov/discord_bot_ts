@@ -36,6 +36,10 @@ export const gamesOption = (option: SlashCommandStringOption) =>
     .addChoices({
       name: "Street Fighter 6",
       value: "Street_Fighter_6",
+    })
+    .addChoices({
+      name: "Under Night",
+      value: "Under_Night",
     });
 
 export const numberOfRoundsOption = (option: SlashCommandNumberOption) =>
