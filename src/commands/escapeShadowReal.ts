@@ -33,8 +33,6 @@ export = {
       }
 
       const timePassInHours = timePassedInHours(currentLocalTime, lastLost[0].createdAt);
-
-      const cooldown = showTimer(currentLocalTime, lastLost[0].createdAt);
       if (timePassInHours >= 1) {
         await interaction.reply({
           content: `\`you escaped the shadow realm!\nuntill next time...\``,
@@ -47,8 +45,9 @@ export = {
 
         return;
       } else {
-        const imageString = "shadowRealmWelcome.png";
+        const imageString = "shadowRealm.png";
         const gameImg = new AttachmentBuilder(`./public/img/${imageString}`);
+        const cooldown = showTimer(currentLocalTime, lastLost[0].createdAt);
         const embed = shadowRealmWelcomeEmbed(cooldown, imageString);
 
         await interaction.reply({
@@ -60,7 +59,7 @@ export = {
       }
     } else {
       await interaction.reply({
-        content: `\`\`\`Only thouse that's have been banished to the shadow realm may use this command..\`\`\``,
+        content: `\`\`\`Only those that have been banished to the shadow realm may use this command..\`\`\``,
         ephemeral: true,
       });
       return;
