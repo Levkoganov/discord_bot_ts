@@ -1,5 +1,10 @@
-import { GuildMember, Role } from "discord.js";
+import { CommandInteraction, GuildMember, GuildMemberRoleManager } from "discord.js";
 
-export default async (loser: GuildMember | undefined, role: Role): Promise<void> => {
-  await loser?.roles.add(role);
+export default async (
+  user: GuildMember | undefined,
+  roleName: string,
+  interaction: CommandInteraction & GuildMemberRoleManager
+): Promise<void> => {
+  const role = interaction.guild.roles.cache.find((role) => role.name === roleName);
+  if (role) await user?.roles.add(role);
 };

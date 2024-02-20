@@ -3,6 +3,7 @@ import { checkChallengerCooldown } from "../timer_func/kothTimeLimit";
 import { IUserCooldownTimer } from "../../../types";
 
 import { checkShadowGameTimeLimit } from "../timer_func/shadowGameTimeLimit";
+import { roleNames } from "../../constants/constants";
 let payload: IUserCooldownTimer = {
   cooldown: "",
   isBlocked: false,
@@ -34,7 +35,9 @@ export const validateUserCommand = async (
   }
   if (role === undefined) {
     await interaction.reply({
-      content: `\`"KOTH - Champion"\` **__role__** doesn't exist.\nplease create this role before using this command`,
+      content: `**__role__** does not exist.\nplease make sure to create all the necessary roles before using this command\n(${roleNames
+        .map((role) => `**__${role}__**`)
+        .join(", ")})`,
       ephemeral: true,
     });
 

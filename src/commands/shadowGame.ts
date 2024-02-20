@@ -13,7 +13,6 @@ import { numberOfRoundsOption } from "../constants/gameOptionsFunc";
 import { validateUserCommand } from "../helpers/validation_func/validations";
 import { ACCEPTBTNROW, matchClickableBtnsRow } from "../constants/btnRows";
 import { filterInteraction } from "../helpers/validation_func/filterUserInteractions";
-import updateWinnerShadowGameRole from "../helpers/db_func/updateWinnerShadowGameRole";
 
 export = {
   data: new SlashCommandBuilder()
@@ -27,25 +26,22 @@ export = {
   async execute(interaction: CommandInteraction & GuildMemberRoleManager): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
-    const roleName = "Niftar";
-    const roleName2 = "Banisher";
+    let roleCounter = 0;
+    const winnerRoleName = "Banisher";
+    const loserRoleName = "Niftar";
     const user = interaction.user;
     const opponent = interaction.options.getUser("opponent", true);
     const rounds = interaction.options.getNumber("rounds", true);
-    const loserRole = interaction.guild.roles.cache.find(
-      (role) => role.name === roleName
-    );
-    const winnerRole = interaction.guild.roles.cache.find(
-      (role) => role.name === roleName2
-    );
 
-    const isUserAuthorize = await validateUserCommand(
-      interaction,
-      user,
-      opponent,
-      loserRole
-    );
+    const role = interaction.guild.roles.cache.find((role) => {
+      if (role.name === winnerRoleName) roleCounter++;
+      if (role.name === loserRoleName) roleCounter++;
+      if (roleCounter === 2) return true;
+    });
 
+    console.log(roleCounter);
+
+    const isUserAuthorize = await validateUserCommand(interaction, user, opponent, role);
     if (!isUserAuthorize) return;
 
     const imageString = "shadowRealm.png";
@@ -142,10 +138,12 @@ export = {
 
             const loser = interaction.guild.members.cache.get(opponent.id);
             const winner = interaction.guild.members.cache.get(user.id);
+
+            await updateShadowGameRole(loser, loserRoleName, interaction);
+            await updateShadowGameRole(winner, winnerRoleName, interaction);
+
             await loser?.voice.disconnect();
             await updateShadowGameTimeLimit(user, opponent, opponent.id);
-            await updateShadowGameRole(loser, loserRole!);
-            await updateWinnerShadowGameRole(winner, winnerRole!);
 
             mCollector.stop();
             return;
@@ -173,10 +171,12 @@ export = {
             });
             const loser = interaction.guild.members.cache.get(user.id);
             const winner = interaction.guild.members.cache.get(opponent.id);
+
+            await updateShadowGameRole(loser, loserRoleName, interaction);
+            await updateShadowGameRole(winner, winnerRoleName, interaction);
+
             await loser?.voice.disconnect();
             await updateShadowGameTimeLimit(user, opponent, user.id);
-            await updateShadowGameRole(loser, loserRole!);
-            await updateWinnerShadowGameRole(winner, winnerRole!);
 
             mCollector.stop();
             return;
