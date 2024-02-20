@@ -31,7 +31,6 @@ export = {
 
       await interaction.reply({
         content: `\`\`\`${banisher.username} has banished ${victim.username} from the server! ᕦ(ò_óˇ)ᕤ\nAchieve victory in the shadow game match to unlock this power!\`\`\``,
-        ephemeral: true,
       });
     } else {
       await interaction.reply({
