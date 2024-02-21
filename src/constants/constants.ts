@@ -1,1 +1,6 @@
-export const roleNames = ["KOTH - Champion", "Niftar", "Banisher"];
+export enum roleNames {
+  "KOTH - Champion" = "KOTH - Champion",
+  "Niftar" = "Niftar",
+  "Banisher" = "Banisher",
+  "Moderators" = "Moderators",
+}

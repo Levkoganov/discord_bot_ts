@@ -18,7 +18,9 @@ import { findKothChampion } from "../helpers/db_func/findKothChampion";
 import approveKothChampionEmbed from "../helpers/embed_func/approveKothChampionEmbed";
 import { findAndUpdateGameHigestWinstreak } from "../helpers/db_func/findAndUpdateGameHigestWinstreak";
 import NodeCache from "node-cache";
+import { roleNames } from "../constants/constants";
 const myCache = new NodeCache();
+
 
 export = {
   data: new SlashCommandBuilder()
@@ -30,7 +32,6 @@ export = {
     if (!interaction.isChatInputCommand()) return;
 
     // Variables
-    const kothRoleName = "KOTH - Champion";
     const ttlInSeconds = 90 * 60; // 90min
 
     // Interaction variables
@@ -48,8 +49,9 @@ export = {
     const champion = await findKothChampion(game, interaction);
     const kothLeaderboardChannel = await channel_sh.findOne({ guildId: id });
     const channel = interaction.guild.channels.cache.get(kothLeaderboardChannel!.channelId) as TextChannel;
-    const role = interaction.guild.roles.cache.find((role) => role.name === kothRoleName);
+    const role = interaction.guild.roles.cache.find((role) => role.name === roleNames["KOTH - Champion"]);
 
+    // Check for ungoing games
     if (_getOnGoingGame !== undefined) {
       await interaction.reply({
         content: `\`\`\`There is ongoing challenge in ${game}. \nTry again later. \`\`\``,
@@ -59,6 +61,7 @@ export = {
       return;
     }
 
+    // Check if there is a champion for the selected game
     if (champion === undefined) {
       const approveKothCmapionEmbed = approveKothChampionEmbed(challenger, game, imgPathString);
       const repApprove = await interaction.reply({
@@ -134,7 +137,7 @@ export = {
       return;
     }
 
-    // Validate if user may use the challenge command
+    // Check if user may use the "challenge" command
     const isUserAuthorize = await validateUserCommand(interaction, champion, challenger, role, kothLeaderboardChannel, game);
     if (isUserAuthorize === false) return;
 

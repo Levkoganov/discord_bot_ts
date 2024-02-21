@@ -35,9 +35,9 @@ export const validateUserCommand = async (
   }
   if (role === undefined) {
     await interaction.reply({
-      content: `**__role__** does not exist.\nplease make sure to create all the necessary roles before using this command\n(${roleNames
-        .map((role) => `**__${role}__**`)
-        .join(", ")})`,
+      content: `**__role__** does not exist.\nplease make sure to create all the necessary roles before using this command\n(${Object.values(
+        roleNames
+      ).join(", ")})`,
       ephemeral: true,
     });
 

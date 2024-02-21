@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 
 import channel_sh from "../models/channel_sh";
+import { roleNames } from "../constants/constants";
 
 export = {
   data: new SlashCommandBuilder()
@@ -18,9 +19,8 @@ export = {
   async execute(interaction: CommandInteraction & GuildMemberRoleManager): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
-    const moderatorsRoleName = "Moderators";
     const isAdmin = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
-    const isMod = interaction.member.roles.cache.some((role) => role.name === moderatorsRoleName);
+    const isMod = interaction.member.roles.cache.some((role) => role.name === roleNames.Moderators);
     const channel = interaction.options.getChannel("channel", true);
 
     if (channel.type !== 0) {

@@ -10,12 +10,16 @@ export const checkChallengerCooldown = async (user: User, game: string): Promise
     cooldown: "",
   };
   const { id } = user;
+
+  // Check if "User" has a time limit
   const userTimeLimit = await kothTimeLimit_sh.findById(id);
   if (userTimeLimit === null) return userCooldownTimer;
 
+  // Check "User" time limit on a specific game
   const gameTimeLimit = userTimeLimit.games.find(({ name }) => name === game);
   if (gameTimeLimit === undefined) return userCooldownTimer;
 
+  // Show user time limit cooldown
   const currentLocalTime = moment().format();
   const { createdAt } = gameTimeLimit;
   return cooldownTimer(createdAt, userCooldownTimer, currentLocalTime, 12);

@@ -3,6 +3,7 @@ import {
   CommandInteraction,
   GuildMemberRoleManager,
 } from "discord.js";
+import { roleNames } from "../constants/constants";
 
 export = {
   data: new SlashCommandBuilder()
@@ -15,18 +16,18 @@ export = {
   async execute(interaction: CommandInteraction & GuildMemberRoleManager): Promise<void> {
     if (!interaction.isChatInputCommand()) return;
 
-    const roleName = "Banisher";
     const banisher = interaction.user;
     const victim = interaction.options.getUser("victim", true);
 
-    const role = interaction.guild.roles.cache.find((role) => role.name === roleName);
-    const hasRole = interaction.member.roles.cache.some((role) => role.name === roleName);
+    const role = interaction.guild.roles.cache.find((role) => role.name === roleNames.Banisher);
+    const hasRole = interaction.member.roles.cache.some((role) => role.name === roleNames.Banisher);
 
+    // Check if user has "role"
     if (hasRole && role) {
       const banisherMember = interaction.guild.members.cache.get(banisher.id);
       const victimMember = interaction.guild.members.cache.get(victim.id);
 
-      victimMember?.timeout(10 * 60 * 1000); // 10min
+      victimMember?.timeout(3 * 60 * 1000); // 3min
       banisherMember?.roles.remove(role);
 
       await interaction.reply({

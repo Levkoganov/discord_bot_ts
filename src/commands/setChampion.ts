@@ -5,6 +5,7 @@ import findAndUpdateChampion from "../helpers/db_func/findAndUpdateChampion";
 import updateKothLeaderboardChannel from "../helpers/db_func/updateLeaderboardChannel";
 import { gamesOption } from "../constants/gameOptionsFunc";
 import { findAndUpdateGameHigestWinstreak } from "../helpers/db_func/findAndUpdateGameHigestWinstreak";
+import { roleNames } from "../constants/constants";
 
 export = {
   data: new SlashCommandBuilder()
@@ -20,15 +21,15 @@ export = {
     const newChampion = interaction.options.getUser("new-champion", true);
     const championMember = interaction.guild.members.cache.get(newChampion.id);
     const { id } = interaction.guild;
-    const moderatorsRoleName = "Moderators";
-    const kothRoleName = "KOTH - Champion";
 
     const isAdmin = interaction.member.permissions.has(PermissionsBitField.Flags.Administrator);
-    const isMod = interaction.member.roles.cache.some((role) => role.name === moderatorsRoleName);
+    const isMod = interaction.member.roles.cache.some((role) => role.name === roleNames.Moderators);
 
+    // Only admin or users with "moderators" role may use this command
     if (isAdmin || isMod) {
       const kothLeaderboardChannel = await channel_sh.findOne({ guildId: id });
 
+      // Check if leaderboard channel is set before setting a champion
       if (kothLeaderboardChannel === null) {
         await interaction.reply({
           content: `Please use \`/set-channel\` before using this command`,
@@ -37,8 +38,9 @@ export = {
         return;
       }
 
-      const role = interaction.guild.roles.cache.find((role) => role.name === kothRoleName);
+      const role = interaction.guild.roles.cache.find((role) => role.name === roleNames["KOTH - Champion"]);
 
+      // Check if "KOTH" role exist
       if (role === undefined) {
         await interaction.reply({
           content: `Please create \`"KOTH - Champion"\` **__role__** before using this command`,

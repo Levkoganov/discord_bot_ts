@@ -4,6 +4,7 @@ import shadowGameTimeLimit_sh from "../models/shadowGameTimeLimit_sh";
 import { showTimer, timePassedInHours } from "../helpers/timer_func/timeLimitCalculate";
 import shadowRealmWelcomeEmbed from "../helpers/embed_func/shadowRealmWelcomeEmbed";
 import { setTimeout as wait } from "node:timers/promises";
+import { roleNames } from "../constants/constants";
 
 export = {
   data: new SlashCommandBuilder().setName("escape").setDescription("Escape the shadow realm"),
@@ -12,14 +13,14 @@ export = {
     if (!interaction.isChatInputCommand()) return;
 
     const user = interaction.user;
-    const roleName = "Niftar";
-    const role = interaction.member.roles.cache.find((role) => role.name === roleName);
+    const role = interaction.member.roles.cache.find((role) => role.name === roleNames.Niftar);
 
+    // Check if "role" exist
     if (role) {
       const currentLocalTime = moment().format();
-
       const lastLost = await shadowGameTimeLimit_sh.find({ loserId: user.id }).sort({ createdAt: -1 });
 
+      // Check if user has a "lost" (unexpected edge case)
       if (lastLost.length === 0) {
         await interaction.reply({
           content: `\`you escaped the shadow realm!\nuntill next time...\``,
@@ -32,7 +33,8 @@ export = {
         return;
       }
 
-      const timePassInHours = timePassedInHours(currentLocalTime, lastLost[0].createdAt);
+      const timePassInHours = timePassedInHours(currentLocalTime, lastLost[0].createdAt)
+      // Check if an "Hour" passed since the user lost
       if (timePassInHours >= 1) {
         await interaction.reply({
           content: `\`you escaped the shadow realm!\nuntill next time...\``,

@@ -13,6 +13,7 @@ import { numberOfRoundsOption } from "../constants/gameOptionsFunc";
 import { validateUserCommand } from "../helpers/validation_func/validations";
 import { ACCEPTBTNROW, matchClickableBtnsRow } from "../constants/btnRows";
 import { filterInteraction } from "../helpers/validation_func/filterUserInteractions";
+import { roleNames } from "../constants/constants";
 
 export = {
   data: new SlashCommandBuilder()
@@ -27,19 +28,15 @@ export = {
     if (!interaction.isChatInputCommand()) return;
 
     let roleCounter = 0;
-    const winnerRoleName = "Banisher";
-    const loserRoleName = "Niftar";
     const user = interaction.user;
     const opponent = interaction.options.getUser("opponent", true);
     const rounds = interaction.options.getNumber("rounds", true);
 
     const role = interaction.guild.roles.cache.find((role) => {
-      if (role.name === winnerRoleName) roleCounter++;
-      if (role.name === loserRoleName) roleCounter++;
+      if (role.name === roleNames.Banisher) roleCounter++;
+      if (role.name === roleNames.Niftar) roleCounter++;
       if (roleCounter === 2) return true;
     });
-
-    console.log(roleCounter);
 
     const isUserAuthorize = await validateUserCommand(interaction, user, opponent, role);
     if (!isUserAuthorize) return;
@@ -139,8 +136,8 @@ export = {
             const loser = interaction.guild.members.cache.get(opponent.id);
             const winner = interaction.guild.members.cache.get(user.id);
 
-            await updateShadowGameRole(loser, loserRoleName, interaction);
-            await updateShadowGameRole(winner, winnerRoleName, interaction);
+            await updateShadowGameRole(loser, roleNames.Niftar, interaction);
+            await updateShadowGameRole(winner, roleNames.Banisher, interaction);
 
             await loser?.voice.disconnect();
             await updateShadowGameTimeLimit(user, opponent, opponent.id);
@@ -172,8 +169,8 @@ export = {
             const loser = interaction.guild.members.cache.get(user.id);
             const winner = interaction.guild.members.cache.get(opponent.id);
 
-            await updateShadowGameRole(loser, loserRoleName, interaction);
-            await updateShadowGameRole(winner, winnerRoleName, interaction);
+            await updateShadowGameRole(loser, roleNames.Niftar, interaction);
+            await updateShadowGameRole(winner, roleNames.Banisher, interaction);
 
             await loser?.voice.disconnect();
             await updateShadowGameTimeLimit(user, opponent, user.id);
